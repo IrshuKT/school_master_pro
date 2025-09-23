@@ -5,7 +5,8 @@ class StudentClassName(models.Model):
     _description = 'Available Courses and its fees'
     _inherit = ["mail.thread", "mail.activity.mixin"]
 
-    course_no = fields.Integer(string='Course ID')
+    #course_no = fields.Integer(string='Course ID')
+    course_id = fields.Char(string='Course ID')
     name = fields.Char(string='Class Name', required=True)
     duration = fields.Integer('Course Duration')
     admission_fee = fields.Float('Admission Fee')

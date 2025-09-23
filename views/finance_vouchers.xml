@@ -6,7 +6,7 @@
         <field name="model">finance.voucher</field>
         <field name="arch" type="xml">
             <list >
-<!--                <field name="name"/>-->
+                <field name="name"/>
                 <field name="date" />
                 <field name="voucher_type"/>
                 <field name="account_type"/>
