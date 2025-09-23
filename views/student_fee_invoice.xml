@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record model="ir.ui.view" id="student_invoice_list">
+        <field name="name">Student Invoice</field>
+        <field name="model">student.fee.invoice</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="invoice_date"/>
+                <field name="student_id"/>
+                <field name="course_id"/>
+                <field name="year_id"/>
+                <field name="amount"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="student_invoice_form">
+        <field name="name">Student Invoice</field>
+        <field name="model">student.fee.invoice</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="true">
+                <header>
+                   <button name="action_save" type="object" string="Save" class="btn btn-outline-success"
+                            invisible="is_locked"/>
+                    <button name="action_edit" type="object" string="Rest to draft"
+                            invisible="not is_locked"/>
+                     <button type="object" name="action_back" class="btn btn-secondary"
+                             invisible="not id"  string="⬅️ Back"/>
+                    <field name="is_locked" invisible="1"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+
+
+                </header>
+                <sheet>
+
+                    <div class="row align-items-center py-3" style="min-height:100px; border-bottom: 2px solid #000;">
+                        <!-- Left Side: Company Logo & Name -->
+                        <div class="col-6 d-flex align-items-center">
+                            <div class="me-3">
+                                <field name="company_logo" widget="image" class="o_logo_company"
+                                       style="max-width: 80px; max-height: 80px; object-fit: contain;"
+                                       alt="Company Logo" readonly="1"/>
+                            </div>
+                            <div>
+                                <h5 class="m-0 fw-bold text-dark">
+                                    <field name="company_id"/>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Student Master Title -->
+                        <div class="col-6 d-flex justify-content-end align-items-center">
+                            <h3 class="m-0 fw-bold text-primary" style="letter-spacing: 1px;">
+                                Invoices
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top:60px;">
+                        <div class="col-6">
+                            <group>
+                                <field name="student_id"/>
+
+                <field name="course_id"/>
+                <field name="year_id"/>
+
+                <field name="amount"/>
+                <field name="description"/>
+                <field name="invoice_date"/>
+                            </group>
+                        </div>
+                    </div>
+
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Action -->
+    <record id="action_student_invoice" model="ir.actions.act_window">
+        <field name="name">Invoice Details</field>
+        <field name="res_model">student.fee.invoice</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu Item -->
+
+</odoo>

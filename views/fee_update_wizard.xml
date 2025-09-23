@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_fee_update_wizard_form" model="ir.ui.view">
+        <field name="name">fee.update.wizard.form</field>
+        <field name="model">fee.update.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Update Academic Fees">
+                <group>
+                    <field name="confirm"/>
+                    <field name="can_execute" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_generate_invoices" type="object" string="Run Update" class="btn-primary"/>
+<!--                            invisible="not can_execute"/>-->
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record id="action_fee_update_wizard" model="ir.actions.act_window">
+        <field name="name">Update Fees ?</field>
+        <field name="res_model">fee.update.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field> <!-- ensures it opens as a popup -->
+    </record>
+
+
+
+</odoo>

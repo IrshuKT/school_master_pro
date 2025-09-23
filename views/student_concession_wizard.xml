@@ -1,0 +1,25 @@
+<odoo>
+    <record id="view_student_concession_wizard_form" model="ir.ui.view">
+        <field name="name">student.concession.wizard.form</field>
+        <field name="model">student.concession.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Apply Concession">
+                <sheet>
+                    <group>
+                        <field name="student_id"/>
+                        <field name="admission_discount"/>
+                        <field name="term_one_discount"/>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_apply_concession"
+                            type="object"
+                            string="Apply"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

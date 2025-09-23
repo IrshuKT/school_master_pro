@@ -1,0 +1,96 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+
+        <record model="ir.ui.view" id="exam_result_list">
+            <field name="name">school list</field>
+            <field name="model">exam.result</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="student_id"/>
+                    <field name="exam_name_id"/>
+                    <field name="exam_subject_id"/>
+                    <field name="exam_total_mark"/>
+                    <field name="obtained_mark"/>
+                    <field name="grade" readonly="is_locked"/>
+                    <field name="grade_point" readonly="is_locked"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="exam_result_form">
+            <field name="name">Exam Entry</field>
+            <field name="model">exam.result</field>
+            <field name="arch" type="xml">
+                <form>
+                    <div class="custom-sticky-header" position="sticky">
+
+                        <header>
+                            <button name="action_save" type="object" string="Save" class="btn btn-outline-success"
+                                    invisible="is_locked"/>
+                            <button name="action_edit" type="object" string="Reset to draft"
+                                    invisible="not is_locked"/>
+
+                            <button type="object" name="action_back" class="btn btn-secondary"
+                                    invisible="not id" string="⬅️ Back"/>
+
+                            <field name="is_locked" invisible="1"/>
+                            <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                        </header>
+                    </div>
+                    <sheet>
+                        <div class="row align-items-center py-3"
+                             style="min-height:100px; border-bottom: 2px solid #000;">
+                            <!-- Left Side: Company Logo & Name -->
+                            <div class="col-6 d-flex align-items-center">
+                                <div class="me-3">
+                                    <field name="company_logo" widget="image" class="o_logo_company"
+                                           style="max-width: 80px; max-height: 80px; object-fit: contain;"
+                                           alt="Company Logo" readonly="1"/>
+                                </div>
+                                <div>
+                                    <h5 class="m-0 fw-bold text-dark">
+                                        <field name="company_id"/>
+                                    </h5>
+                                </div>
+                            </div>
+
+                            <!-- Right Side: Student Master Title -->
+                            <div class="col-6 d-flex justify-content-end align-items-center">
+
+                                <h3 class="m-0 fw-bold text-primary" style="letter-spacing: 1px;">
+                                    EXAM MASTER
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top:60px;">
+                            <group>
+                                <field name="student_id" readonly="is_locked"/>
+                                <field name="exam_name_id" readonly="is_locked"/>
+                                <field name="exam_subject_id" readonly="is_locked"/>
+                                <field name="exam_total_mark" readonly="is_locked"/>
+                                <field name="obtained_mark" readonly="is_locked"/>
+                                <field name="grade" readonly="is_locked"/>
+                                <field name="grade_point" readonly="is_locked"/>
+                            </group>
+                        </div>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- actions opening views on models -->
+
+        <record model="ir.actions.act_window" id="exam_result_action_window">
+            <field name="name">Exam window</field>
+            <field name="res_model">exam.result</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- Top menu item -->
+
+
+    </data>
+</odoo>

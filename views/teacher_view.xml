@@ -1,0 +1,51 @@
+<odoo>
+    <data>
+        <!-- Teacher Group -->
+        <record id="group_teacher_user" model="res.groups">
+            <field name="name">Teacher</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+            <field name="comment">Restrict teachers to only Student Master and Exam Master</field>
+        </record>
+
+        <!-- Student Master Menu: visible to Admin + Teacher -->
+        <record id="school_master_pro.menu_student_master" model="ir.ui.menu">
+            <field name="name">Student Master</field>
+            <field name="groups_id"
+                   eval="[(6, 0, [ref('base.group_system'), ref('school_master_pro.group_teacher_user')])]"/>
+        </record>
+
+        <!-- Exam Master Menu: visible to Admin + Teacher -->
+        <record id="school_master_pro.school_exam_menu_list" model="ir.ui.menu">
+            <field name="name">Exams</field>
+            <field name="groups_id"
+                   eval="[(6, 0, [ref('base.group_system'), ref('school_master_pro.group_teacher_user')])]"/>
+        </record>
+
+        <!-- Restrict ALL other school_master_pro menus to Admin only -->
+        <record id="school_master_pro.configuration_menu_list" model="ir.ui.menu">
+            <field name="name">Configuration</field>
+            <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+        </record>
+
+        <record id="school_master_pro.menu_student_fee_root" model="ir.ui.menu">
+            <field name="name">Student Fees</field>
+            <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+        </record>
+
+        <record id="school_master_pro.teacher_master_menu" model="ir.ui.menu">
+            <field name="name">Teachers</field>
+            <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+        </record>
+
+        <record id="school_master_pro.menu_ledger_heads" model="ir.ui.menu">
+            <field name="name">Ledger Heads</field>
+            <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+        </record>
+
+        <record id="school_master_pro.documents_menu" model="ir.ui.menu">
+            <field name="name">Documents</field>
+            <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+        </record>
+
+    </data>
+</odoo>

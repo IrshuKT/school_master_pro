@@ -1,0 +1,42 @@
+<!--<odoo>-->
+<!--    <data noupdate="1">-->
+<!--        <record id="ir_cron_add_fees_5min" model="ir.cron">-->
+<!--            <field name="name">Add Student Fees Every 5 Minutes</field>-->
+<!--            <field name="model_id" ref="model_student_academic"/>-->
+<!--            <field name="state">code</field>-->
+<!--            <field name="code">model._cron_add_fees_every_5min()</field>-->
+<!--            <field name="interval_number">2</field>-->
+<!--            <field name="interval_type">minutes</field>-->
+<!--            <field name="active">true</field>-->
+<!--            <field name="numbercall">-1</field>-->
+<!--            <field name="nextcall" eval="(DateTime.now())"/>-->
+<!--        </record>-->
+<!--    </data>-->
+
+<!--for 90 days change existing code to
+<odoo>
+  <record id="ir_cron_generate_next_term_invoices" model="ir.cron">
+    <field name="name">Generate Term Invoices</field>
+    <field name="model_id" ref="your_module.model_student_fee_invoice"/>
+    <field name="state">code</field>
+    <field name="code">model.generate_next_term_invoices()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="numbercall">-1</field>
+    <field name="doall" eval="False"/>
+    <field name="active" eval="True"/>
+  </record>
+</odoo>
+-->
+<!--</odoo>-->
+<odoo>
+    <record id="ir_cron_generate_next_term_invoices" model="ir.cron">
+        <field name="name">Generate Term Invoices (Test)</field>
+        <field name="model_id" ref="school_master_pro.model_student_fee_invoice"/>
+        <field name="state">code</field>
+        <field name="code">model.generate_next_term_invoices()</field>
+        <field name="interval_number">5</field>   <!-- run every 5 minutes -->
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

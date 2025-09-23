@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record model="ir.ui.view" id="student_master_list">
+        <field name="name">student.master.list</field>
+        <field name="model">student.master</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="student_name" readonly="is_locked"/>
+                <field name="student_gender" readonly="is_locked"/>
+                <field name="course_id" readonly="is_locked"/>
+                <field name="year_id" readonly="is_locked"/>
+                <field name="student_guardian" readonly="is_locked"/>
+                <field name="student_contact2" readonly="is_locked"/>
+            </list>
+        </field>
+    </record>
+
+
+    <record model="ir.ui.view" id="student_master_form">
+        <field name="name">student.master.form</field>
+        <field name="model">student.master</field>
+        <field name="arch" type="xml">
+            <form> <!-- js_class="student_master_form">-->
+               <div class="custom-sticky-header" position="sticky">
+                <header>
+                    <button name="action_save" type="object" string="Save" class="btn btn-outline-success"
+                            invisible="is_locked"/>
+                    <button name="action_edit" type="object" string="Edit" class="btn btn-outline-info"
+                            invisible="not is_locked"/>
+                    <button name="action_go_back" string="Go Back" type="object" class="btn-secondary"
+                            invisible="not id"/>
+                    <button string="Go Back" class="btn-secondary" special="cancel"
+                            invisible="name"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                </header>
+            </div>
+
+                <sheet>
+
+                    <div class="row" style="margin-top:40px;">
+                        <div class="col-6">
+                            <group>
+                                <field name="name" readonly="is_locked"/>
+                                <field name="admission_date" readonly="is_locked"/>
+                                <field name="student_name" required="1" readonly="is_locked"/>
+                                <field name="student_gender" readonly="is_locked"/>
+                                <field name="dob" class="oe_inline" readonly="is_locked"/>
+                                <field name="age" readonly="1" class="oe_inline"/>
+                                <field name="course_id" options="{'no_create': True, 'no_open': True}"
+                                       readonly="is_locked"/>
+                                <field name="year_id" options="{'no_create': True, 'no_open': True}"
+                                       readonly="is_locked"/>
+                                <field name="reg_no" readonly="is_locked"/>
+                                <field name="student_contact1" readonly="is_locked"/>
+
+                                <field name="is_sponsor" readonly="is_locked"/>
+                                <field name="sponsor_note" readonly="is_locked" invisible="not is_sponsor"/>
+                                <field name="is_concession" readonly="is_locked"/>
+                                <button name="action_open_concession_wizard"
+                                        type="object"
+                                        string="Apply Concession"
+                                        class="btn-primary"
+                                        invisible="not is_concession"/>
+                            </group>
+                        </div>
+                        <div class="col-6">
+                            <group>
+                                <field name="student_img" widget="image" style="width: 128px; height: 128px;"/>
+                                <field name="student_guardian" readonly="is_locked"/>
+                                <field name="student_contact2" readonly="is_locked"/>
+                                <field name="student_add" readonly="is_locked"/>
+                                <field name="pincode" readonly="is_locked"/>
+                                <field name="teacher_id" readonly="is_locked"/>
+                                <field name="aadhaar_card" readonly="is_locked"/>
+                                <field name="current_balance" string='Fee Pending' readonly="is_locked"/>
+                                <button name="action_pay_now" type="object" string="Pay Now" class="oe_highlight"
+                                        invisible="current_balance &lt;= 0"/>
+                            </group>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="Exam Details">
+                            <field name="exam_ids" readonly="is_locked">
+                                <list options="{'no_open': True}">
+                                    <field name="student_id" readonly="1"/>
+                                    <field name="exam_name_id" readonly="1"/>
+                                    <field name="exam_subject_id" readonly="1"/>
+                                    <field name="exam_total_mark" readonly="1"/>
+                                    <field name="obtained_mark" readonly="1"/>
+                                    <field name="grade" readonly="1"/>
+                                    <field name="grade_point" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Transportation Details" readonly="1" invisible="student_trans != 'school_bus'">
+                            <field name="transport_ids" readonly="is_locked">
+                                <list>
+                                    <field name="student_id" readonly="1"/>
+                                    <field name="student_trans" readonly="1"/>
+                                    <field name="transport_mode" readonly="1"/>
+                                    <field name="transportation_fee" readonly="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Monthly Fees" invisible="student_trans != 'school_bus'">
+                            <field name="monthly_fee_ids" readonly="is_locked">
+                                <list editable="bottom">
+                                    <field name="month"/>
+                                    <field name="amount"/>
+                                    <field name="due_date"/>
+                                    <field name="state"/>
+                                    <field name="payment_date"/>
+                                    <field name="notes"/>
+                                    <button name="mark_as_paid" string="Mark Paid" type="object" class="oe_highlight"
+                                            states="unpaid,late"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Invoice Details">
+                            <field name="fee_invoice_ids" readonly="is_locked">
+                                <list options="{'no_open': True}">
+                                    <field name="invoice_date"/>
+                                    <field name="student_id"/>
+                                    <field name="course_id"/>
+                                    <field name="year_id"/>
+                                    <field name="amount"/>
+                                    <field name="description"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Receipt Details">
+                            <field name="fee_receipt_ids" readonly="is_locked" create="false" edit="false">
+                                <list options="{'no_open': True}">
+                                    <field name="name"/>
+                                    <field name="payment_date"/>
+                                    <field name="student_id"/>
+                                    <field name="amount"/>
+                                    <field name="reference"/>
+                                    <field name="payment_method"/>
+                                </list>
+                            </field>
+                        </page>
+
+
+                        <page string="Pending Documents">
+                            <field name="pending_document_ids" readonly="is_locked">
+                                <list>
+                                    <field name="document_type"/>
+                                    <field name="collected_date"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="student_master_kanban">
+        <field name="name">student.master.kanban</field>
+        <field name="model">student.master</field>
+        <field name="arch" type="xml">
+
+            <kanban default_group_by="year_id" create="true" js_class="student_master_kanban">
+
+                <field name="student_name"/>
+                <field name="student_gender"/>
+                <field name="course_id"/>
+                <field name="year_id"/>
+                <field name="batch_id"/>
+                <field name="student_roll_number"/>
+                <field name="student_guardian"/>
+                <field name="student_add1"/>
+                <field name="student_add2"/>
+                <field name="student_add3"/>
+                <field name="student_contact1"/>
+                <field name="student_img"/>
+                <field name="teacher_id" options="{'no_open': True}"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="student-master-kanban">
+                                <img t-if="record.student_img.raw_value"
+                                     t-attf-src="/web/image/student.master/#{record.id.raw_value}/student_img"
+                                     class="oe_kanban_image student-photo" alt="Student Photo"/>
+                                <div class="oe_kanban_details">
+                                    <h4 style="color: red; text-align: center;">
+                                        <b>
+                                            <field name="student_name"/>
+                                        </b>
+                                    </h4>
+                                    <div>Admission Number:
+                                        <field name="name"/>
+                                    </div>
+                                    <div>Gender:
+                                        <field name="student_gender"/>
+                                    </div>
+                                    <div>Year:
+                                        <field name="course_id"/>
+                                    </div>
+                                    <div>Course:
+                                        <field name="year_id"/>
+                                    </div>
+                                    <div>Batch:
+                                        <field name="batch_id"/>
+                                    </div>
+                                    <div>Guardian:
+                                        <field name="student_guardian"/>
+                                    </div>
+                                    <div>Contact:
+                                        <field name="student_contact2"/>
+                                    </div>
+                                    <div>Class Teacher:
+                                        <field name="teacher_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-name="kanban-empty">
+                        <div class="oe_kanban_empty">
+                            <div class="text-center p-4">
+                                <i class="fa fa-graduation-cap fa-4x text-muted mb-3"/>
+                                <h4 class="text-muted">No Students Found</h4>
+                                <p class="text-muted">Click the 'Create' button above to add your first student</p>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_student_master" model="ir.actions.act_window">
+        <field name="name">Student Master</field>
+        <field name="res_model">student.master</field>
+        <field name="view_mode">kanban,form,list</field>
+        <!--        <field name="view_id" ref="student_master_kanban"/>-->
+        <field name="context">{}</field>
+    </record>
+
+
+    <record id="paperformat_custom_a4" model="report.paperformat">
+        <field name="name">Custom A4 Fixed</field>
+        <field name="format">A4</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="orientation">Portrait</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Add print option in action menu -->
+    <record id="school_master_pro_print_action" model="ir.actions.report">
+        <field name="name">Print Student</field>
+        <field name="model">student.master</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">school_master_pro.report_student_master</field>
+        <field name="report_file">school_master_pro.report_student_master</field>
+        <field name="binding_model_id" ref="model_student_master"/>
+        <field name="binding_type">action</field>
+
+    </record>
+
+</odoo>

@@ -1,0 +1,127 @@
+<odoo>
+    <template id="report_student_master">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="page"
+                     style="width: 210mm; height: 270mm; border: 1px solid black; margin: 10px auto; padding: 10px; font-family: Arial, sans-serif; box-sizing: border-box; overflow: hidden;">
+                    <!-- Company Header -->
+                    <div style="display: flex; align-items: center; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 10px;">
+                        <!-- Company Logo -->
+                        <div style="flex: 0 0 80px;">
+                            <t t-if="o.company_id.logo">
+                               <img t-att-src="'/web/image/res.company/%s/logo' % o.company_id.id"
+     style="width:60px; height:60px; object-fit:contain;"/>
+
+                            </t>
+                            <t t-else="">
+                                <img src="/school_master_pro/static/src/img/placeholder.png"
+                                     style="width: 60px; height: 60px; border: 1px solid #000; object-fit: contain;"/>
+                            </t>
+                        </div>
+                        <!-- Company Info -->
+                        <div style="flex: 1; text-align: left; padding-left: 10px;">
+                            <h2 style="margin: 0; font-size: 16px;">
+                                <span t-esc="o.company_id.name or 'N/A'"/>
+                            </h2>
+                            <p style="margin: 1px 0; font-size: 12px;">
+                                <span t-esc="o.company_id.street or 'N/A'"/>
+                                <br/>
+                                <span t-esc="o.company_id.city or 'N/A'"/>
+                                -
+                                <span t-esc="o.company_id.zip or 'N/A'"/>
+                            </p>
+                            <p style="margin: 1px 0; font-size: 12px;">
+                                <span t-esc="o.company_id.phone or 'N/A'"/>
+                                |
+                                <span t-esc="o.company_id.email or 'N/A'"/>
+                            </p>
+                            <p style="margin: 1px 0; font-size: 12px;">
+                                <span t-esc="o.company_id.website or 'N/A'"/>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Student Section -->
+                    <div style="display: flex; margin-bottom: 10px;">
+                        <!-- Student Photo -->
+                        <div style="flex: 0 0 100px; text-align: center;">
+                            <t t-if="o.student_img">
+                                <img t-att-src="'/web/image/student.master/%s/student_img' % o.id"
+     style="width:80px; height:80px; object-fit:contain;"/>
+                            </t>
+                            <t t-else="">
+                                <img src="/school_master_pro/static/src/img/placeholder.png"
+                                     style="width: 80px; height: 80px; object-fit: contain;"/>
+                            </t>
+                        </div>
+                        <!-- Student Info -->
+                        <div style="flex: 1; padding-left: 10px;">
+                            <table style="width: 100%; font-size: 18px; border-collapse: collapse;">
+                                <tr>
+                                    <td>
+                                        <strong>Admission No:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.name or 'N/A'"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Student Name:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.student_name or 'N/A'"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Gender:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.student_gender or 'N/A'"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Course:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.course_id.name or 'N/A'"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Year:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.year_id.name or 'N/A'"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Guardian:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.student_guardian or 'N/A'"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Contact:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-esc="o.student_contact1 or 'N/A'"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div>
+                        <h5 style="text-align:center">Exam Details</h5>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

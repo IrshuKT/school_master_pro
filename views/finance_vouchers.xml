@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Voucher List View -->
+    <record id="view_finance_voucher_list" model="ir.ui.view">
+        <field name="name">finance.voucher.list</field>
+        <field name="model">finance.voucher</field>
+        <field name="arch" type="xml">
+            <list >
+<!--                <field name="name"/>-->
+                <field name="date" />
+                <field name="voucher_type"/>
+                <field name="account_type"/>
+                <field name="head_id" />
+                <field name="partner_id" />
+                <field name="amount" />
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+
+    <!-- Voucher Form View -->
+    <record id="view_finance_voucher_form" model="ir.ui.view">
+        <field name="name">finance.voucher.form</field>
+        <field name="model">finance.voucher</field>
+        <field name="arch" type="xml">
+            <form>
+                <div class="custom-sticky-header" position="sticky">
+                        <header>
+                            <button name="action_save" type="object" string="Save" class="btn btn-outline-success"
+                                    invisible="is_locked"/>
+                            <button name="action_edit" type="object" string="Edit" class="btn btn-outline-info"
+                                    invisible="not is_locked"/>
+                            <button type="object" name="action_back" class="btn btn-secondary"
+                                    invisible="not id" string="⬅️ Back"/>
+                            <field name="is_locked" invisible="1"/>
+                            <field name="state" widget="statusbar"
+                                   statusbar_visible="collected,partially_returned,returned"/>
+                        </header>
+                    </div>
+                <sheet>
+                    <group>
+                       <field name="name" readonly="is_locked"/>
+                        <field name="date" readonly="is_locked"/>
+                        <field name="voucher_type" readonly="is_locked"/>
+                        <field name="account_type" readonly="is_locked"/>
+                        <field name="head_id" readonly="is_locked"/>
+                        <field name="partner_id" readonly="is_locked"/>
+                        <field name="description" readonly="is_locked"/>
+                        <field name="amount" readonly="is_locked"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+
+
+    <!-- Voucher Action -->
+    <record id="action_finance_voucher" model="ir.actions.act_window">
+        <field name="name">Vouchers</field>
+        <field name="res_model">finance.voucher</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+
+</odoo>

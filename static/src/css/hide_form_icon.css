@@ -1,0 +1,4 @@
+.student-ledger-wizard ~ .o_control_panel,
+.student-ledger-wizard .o_control_panel {
+    display: none !important;
+}

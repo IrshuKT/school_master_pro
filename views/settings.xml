@@ -1,0 +1,155 @@
+<odoo>
+    <data>
+        <!-- explicit list view definition -->
+
+        <record model="ir.ui.view" id="student_division_list">
+            <field name="name">school list</field>
+            <field name="model">student.division</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="student_division_form">
+            <field name="name">Batch</field>
+            <field name="model">student.division</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_save" type="object" string="Confirm"
+                                class="oe_highlight"
+                                invisible="is_locked"/>
+                        <button name="action_edit" type="object" string="Reset to draft"
+                                invisible="not is_locked"/>
+                        <button name="action_new_batch" string="New Batch" type="object"
+                                class="btn-success"/>
+
+                        <field name="is_locked" invisible="1"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                    </header>
+                    <sheet>
+                        <div class="row align-items-center py-3"
+                             style="min-height:100px; border-bottom: 2px solid #000;">
+                            <!-- Left Side: Company Logo & Name -->
+                            <div class="col-6 d-flex align-items-center">
+                                <div class="me-3">
+                                    <field name="company_logo" widget="image" class="o_logo_company"
+                                           style="max-width: 80px; max-height: 80px; object-fit: contain;"
+                                           alt="Company Logo" readonly="1"/>
+                                </div>
+                                <div>
+                                    <h5 class="m-0 fw-bold text-dark">
+                                        <field name="company_id"/>
+                                    </h5>
+                                </div>
+                            </div>
+
+                            <!-- Right Side: Student Master Title -->
+                            <div class="col-6 d-flex justify-content-end align-items-center">
+                                <h3 class="m-0 fw-bold text-primary" style="letter-spacing: 1px;">
+                                    BATCH
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="col-6" style="margin-top:60px;">
+                            <group>
+                                <field name="course_id" placeholder="Ex: 2025 - 2027 for Two year course "
+                                       readonly="is_locked"/>
+                                <field name="name" placeholder="Ex: 2025 - 2027 for Two year course" readonly="1"/>
+                                <field name="start_year" placeholder="Ex: 2025 - 2027 for Two year course "
+                                       readonly="is_locked"/>
+                                <field name="end_year" placeholder="Ex: 2025 - 2027 for Two year course "
+                                       readonly="is_locked"/>
+                            </group>
+                        </div>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <!-- actions opening views on models -->
+
+        <record model="ir.actions.act_window" id="student_batch_action_window">
+            <field name="name">Batch window</field>
+            <field name="res_model">student.division</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!--        #For Year-->
+
+        <record model="ir.ui.view" id="student_year_list">
+            <field name="name">Year list</field>
+            <field name="model">student.class.no</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name" string="Batch Year" readonly="is_locked"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="student_year_form">
+            <field name="name">Year Form</field>
+            <field name="model">student.class.no</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_save" type="object" string="Confirm"
+                                class="oe_highlight"
+                                invisible="is_locked"/>
+                        <button name="action_edit" type="object" string="Reset to draft"
+                                invisible="not is_locked"/>
+                        <button name="action_new_year" string="New Year" type="object"
+                                class="btn-success"/>
+
+                        <field name="is_locked" invisible="1"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                    </header>
+
+                    <div class="row align-items-center py-3"
+                         style="min-height:100px; border-bottom: 2px solid #000;">
+                        <!-- Left Side: Company Logo & Name -->
+                        <div class="col-6 d-flex align-items-center">
+                            <div class="me-3">
+                                <field name="company_logo" widget="image" class="o_logo_company"
+                                       style="max-width: 80px; max-height: 80px; object-fit: contain;"
+                                       alt="Company Logo" readonly="1"/>
+                            </div>
+                            <div>
+                                <h5 class="m-0 fw-bold text-dark">
+                                    <field name="company_id"/>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Student Master Title -->
+                        <div class="col-6 d-flex justify-content-end align-items-center">
+                            <h3 class="m-0 fw-bold text-primary" style="letter-spacing: 1px;">
+                                YEAR
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="col-6" style="margin-top:60px;">
+                        <group>
+                            <field name="name" placeholder="Ex: 1st year ,2nd year" string="Batch Year"
+                                   readonly="is_locked"/>
+                            <field name="course_ids" readonly="is_locked"/>
+                        </group>
+                    </div>
+
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="student_year_action_window">
+            <field name="name">Year</field>
+            <field name="res_model">student.class.no</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+
+    </data>
+</odoo>

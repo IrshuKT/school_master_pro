@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+<!--    <template id="FormViewButtons" inherit_id="web.FormView.buttons">-->
+<!--    <xpath expr="//div" position="inside">-->
+<!--        <button type="button" class="btn btn-secondary o_back_button">Back</button>-->
+<!--    </xpath>-->
+<!--</template>-->
+
+</odoo>

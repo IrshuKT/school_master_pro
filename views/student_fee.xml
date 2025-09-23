@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record model="ir.ui.view" id="student_fee_list">
+        <field name="name">Student Fee</field>
+        <field name="model">student.academic</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="receipt_date" readonly="is_locked"/>
+                <field name="name" readonly="is_locked"/>
+                <field name="course"/>
+                <field name="year"/>
+                <field name="last_fee_addition"/>
+                <!--                <field name="academic_fee" readonly="is_locked"/>-->
+                <field name="current_balance" invisible="current_balance == 0.00" readonly="is_locked"/>
+            </list>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="student_fee_form">
+        <field name="name">Student Fee</field>
+        <field name="model">student.academic</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="true">
+                <header>
+                    <button name="action_save" type="object" string="Save"
+                            class="oe_highlight"
+                            invisible="is_locked"/>
+<!--                    <button name="action_run_fee_update" type="object" string="Tiger amount"-->
+<!--                            class="oe_highlight"-->
+<!--                    />-->
+                    <button name="action_edit" type="object" string="Edit"
+                            invisible="not is_locked"/>
+                    <field name="is_locked" invisible="1"/>
+                </header>
+                <sheet>
+
+                    <div class="row oe_title">
+                        <div class="col-3 student-master-header">
+                              <img src="/school_master/static/description/college_logo.jpeg"
+                                 alt="Logo" style="width: 100px; height: 100px;"/>
+                        </div>
+                        <div class="col-9 student-master-header">
+                            <img src="/school_master/static/description/academic_fee.png"
+                                 alt="Student Icon" style="width: 100px; height: 100px;"/>
+                            <h4 style="color: red; text-align: center;">
+                                <b>FEE MASTER</b>
+                            </h4>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div class="row" style="margin-top:20px;background-colour:grey;">
+                        <div class="col-6">
+                            <group>
+
+                            </group>
+                        </div>
+                        <div class="col-6">
+                            <group>
+
+                            </group>
+                        </div>
+                    </div>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- Action -->
+    <record id="action_student_fee" model="ir.actions.act_window">
+        <field name="name">FEE Master</field>
+        <field name="res_model">student.academic</field>
+        <field name="view_mode">list</field>
+
+    <field name="context">{'create': False}</field>
+    </record>
+
+    <!-- Menu Item -->
+
+</odoo>

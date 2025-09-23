@@ -1,0 +1,75 @@
+<odoo>
+    <!-- Wizard Form -->
+    <record id="view_student_ledger_wizard_form" model="ir.ui.view">
+        <field name="name">student.ledger.wizard.form</field>
+        <field name="model">student.ledger.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Student Ledger" style="margin:auto;max-width:80%" create="false" edit="true" class="student-ledger-wizard">
+
+                <div class=" align-items-center py-3" style="min-height:100px; border-bottom: 2px solid #000;">
+                    <!-- Left Side: Company Logo & Name -->
+                    <div class="col-6 d-flex align-items-center">
+                        <div class="me-3">
+                            <field name="company_logo" widget="image" class="o_logo_company"
+                                   style="max-width: 80px; max-height: 80px; object-fit: contain;"
+                                   alt="Company Logo" readonly="1"/>
+                        </div>
+                        <div>
+                            <h5 class="m-0 fw-bold text-dark">
+                                <field name="company_id"/>
+                            </h5>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Student Master Title -->
+                    <div class="col-6 d-flex justify-content-end align-items-center">
+                        <h3 class="m-0 fw-bold text-primary" style="letter-spacing: 1px;">
+                            Student Ledger
+                        </h3>
+                    </div>
+                </div>
+                <sheet>
+                <div class="row" style="margin:auto; padding: 12px; border:1px solid black">
+                    <div class="col-3">
+                        <group>
+                            <field name="student_id"/>
+                        </group>
+                    </div>
+                    <div class="col-3">
+                        <group>
+                            <field name="date_from"/>
+                        </group>
+                    </div>
+                    <div class="col-3">
+                        <group>
+                            <field name="date_to"/>
+                        </group>
+                    </div>
+                    <div class="col-3">
+                        <div class="d-flex flex-row">
+                            <button name="action_generate_ledger" type="object" string="Generate"
+                                    class="btn-primary me-2"/>
+                            <button string="Print PDF" type="object" name="print_pdf" class="btn-secondary"/>
+                        </div>
+                    </div>
+                </div>
+                <separator string="Ledger Result"/>
+                <div class="row">
+                    <field name="result_html" nolabel="1" readonly="1"/>
+                </div>
+                </sheet>
+
+            </form>
+        </field>
+    </record>
+
+    <!-- Menu / Action -->
+    <record id="action_student_ledger_wizard" model="ir.actions.act_window">
+        <field name="name">Student Ledger</field>
+        <field name="res_model">student.ledger.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+
+
+</odoo>

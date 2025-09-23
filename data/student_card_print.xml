@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<oddo>
+    <data>
+        <record id="paperformat_custom_a4" model="report.paperformat">
+            <field name="name">Custom A4 Fixed</field>
+            <field name="format">A4</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="orientation">Portrait</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Add print option in action menu -->
+        <record id="school_master_pro_print_action" model="ir.actions.report">
+            <field name="name">Print Student</field>
+            <field name="model">student.master</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">school_master_pro.report_student_master</field>
+            <field name="report_file">school_master_pro.report_student_master</field>
+            <field name="binding_model_id" ref="model_student_master"/>
+            <field name="binding_type">action</field>
+
+        </record>
+    </data>
+
+</oddo>

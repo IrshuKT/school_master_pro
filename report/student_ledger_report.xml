@@ -1,0 +1,123 @@
+<odoo>
+    <template id="report_student_ledger_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="text-center" style="margin:5px 0 20px 0;">  <!-- top 5px, bottom 20px -->
+                            <t t-if="o.company_id.logo">
+                                <img t-att-src="'data:image/png;base64,%s' % (o.company_id.logo.decode())"
+                                     style="max-height:80px;"/>
+                            </t>
+                            <h2>
+                                <t t-esc="o.company_id.name"/>
+                            </h2>
+                            <h3>Student Ledger</h3>
+                        </div>
+
+
+                        <!-- Student Info -->
+                        <p>
+                            <strong>Student:</strong>
+                            <t t-esc="o.student_id.student_name"/>
+                        </p>
+                        <p>
+                            <strong>Date From:</strong>
+                            <t t-esc="o.date_from.strftime('%d/%m/%Y') if o.date_from else ''"/>
+
+                        </p>
+                        <p>
+                            <strong>Date To:</strong>
+
+                            <t t-esc="o.date_to.strftime('%d/%m/%Y') if o.date_to else ''"/>
+                        </p>
+
+                        <!-- Ledger Table -->
+                        <table class="table table-sm table-bordered" style="width:100%;font-size:12px;">
+                            <thead>
+                                <tr style="background-color:#4CAF50;color:white;">
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th style="text-align:right;">Debit</th>
+                                    <th style="text-align:right;">Credit</th>
+                                    <th style="text-align:right;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Opening Balance -->
+                                <t t-set="opening_domain" t-value="[('student_id','=',o.student_id.id)]"/>
+                                <t t-if="o.date_from">
+                                    <t t-set="opening_domain" t-value="opening_domain + [('date','&lt;',o.date_from)]"/>
+                                </t>
+                                <t t-set="opening_records" t-value="o.env['student.ledger'].search(opening_domain)"/>
+                                <t t-set="opening_balance" t-value="sum(r.debit - r.credit for r in opening_records)"/>
+                                <t t-set="balance" t-value="opening_balance"/>
+
+                                <tr style="background-color:#f5f5f5;font-weight:bold;">
+                                    <td>
+                                        <t t-esc="o.date_from.strftime('%d/%m/%Y') if o.date_from else ''"/>
+                                    </td>
+                                    <td colspan="2">Opening Balance</td>
+                                    <td colspan="2" style="text-align:right;">
+                                        <t t-esc="'%.2f' % opening_balance"/>
+                                    </td>
+                                </tr>
+
+                                <!-- Transactions -->
+                                <t t-set="domain" t-value="[('student_id','=',o.student_id.id)]"/>
+                                <t t-if="o.date_to">
+                                    <t t-set="domain" t-value="domain + [('date','&lt;=',o.date_to)]"/>
+                                </t>
+                                <t t-set="records" t-value="o.env['student.ledger'].search(domain, order='date,id')"/>
+
+                                <t t-foreach="records.filtered(lambda r: not o.date_from or r.date >= o.date_from)"
+                                   t-as="line">
+                                    <t t-set="balance" t-value="balance + (line.debit - line.credit)"/>
+                                    <tr>
+                                        <td>
+                                            <t t-esc="line.date.strftime('%d/%m/%Y') if line.date else ''"/>
+                                        </td>
+                                        <td>
+                                            <t t-esc="line.description or ''"/>
+                                        </td>
+                                        <td style="text-align:right;color:green;">
+                                            <t t-esc="'%.2f' % line.debit"/>
+                                        </td>
+                                        <td style="text-align:right;color:red;">
+                                            <t t-esc="'%.2f' % line.credit"/>
+                                        </td>
+                                        <td style="text-align:right;">
+                                            <t t-esc="'%.2f' % balance"/>
+                                        </td>
+                                    </tr>
+                                </t>
+
+                                <!-- Closing Balance -->
+                                <tr style="background-color:#e0f7fa;font-weight:bold;">
+                                    <td>
+                                    <t t-esc="o.date_to.strftime('%d/%m/%Y') if o.date_to else ''"/>
+
+                                    </td>
+                                    <td colspan="4" style="text-align:right;">Closing Balance:
+                                        <t t-esc="'%.2f' % balance"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report Action -->
+    <record id="report_student_ledger_pdf" model="ir.actions.report">
+        <field name="name">Student Ledger</field>
+        <field name="model">student.ledger.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">school_master_pro.report_student_ledger_template</field>
+        <field name="report_file">school_master_pro.student_ledger_pdf</field>
+        <field name="print_report_name">'Student Ledger - %s' % (object.student_id.student_name or 'Unknown')</field>
+    </record>
+</odoo>

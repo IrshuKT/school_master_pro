@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_finance_head_tree" model="ir.ui.view">
+    <field name="name">finance.head.tree</field>
+    <field name="model">finance.head</field>
+    <field name="arch" type="xml">
+        <list>
+            <field name="name"/>
+            <field name="type"/>
+        </list>
+    </field>
+</record>
+<record id="action_finance_head" model="ir.actions.act_window">
+    <field name="name">Finance Heads</field>
+    <field name="res_model">finance.head</field>
+    <field name="view_mode">list,form</field>
+</record>
+
+</odoo>

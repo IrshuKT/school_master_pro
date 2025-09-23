@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <menuitem name="SCHOOL MASTER PRO" id="school_master_root"
+              web_icon="school_master_pro,static/description/webicon.png"
+              sequence="-101"/>
+
+    <!-- actions -->
+
+    <menuitem id="menu_student_master" name="Students Master" parent="school_master_root"
+              action="action_student_master" sequence="10"/>
+
+
+    <menuitem name="Teachers Master" id="teacher_master_menu" parent="school_master_root"
+              action="teacher_master_action_window"
+              sequence="20"/>
+
+    <menuitem name="Courses" id="configuration_menu_list" parent="school_master_root"
+              action="student_course_action_window"
+              sequence="30"/>
+
+    <menuitem name="Exam Master" id="school_exam_menu_list" parent="school_master_root"
+              action="exam_result_action_window"
+              sequence="40"/>
+
+    <menuitem name="Documents" id="documents_menu" parent="school_master_root"
+              action="student_document_collection_action_window"
+              sequence="50"/>
+
+    <menuitem id="menu_student_fee_root" name="Accounts" parent="school_master_root"
+              sequence="60"/>
+
+    <menuitem id="student_fee_receipt" name="Student Receipt" parent="menu_student_fee_root"
+              action="action_student_fee_receipt"
+              sequence="10"/>
+    <!-- Menu Item -->
+    <menuitem id="menu_finance_voucher"
+              name="Receipt/Payment"
+              parent="menu_student_fee_root"
+              action="action_finance_voucher" sequence="20"/>
+
+    <menuitem id="student_invoice_menu" name="Invoices" parent="menu_student_fee_root"
+              action="action_student_invoice"
+              sequence="30"/>
+
+    <menuitem id="menu_student_ledger"
+              name="Student Ledger"
+              parent="menu_student_fee_root"
+              action="action_student_ledger_wizard" sequence="40"/>
+
+
+    <menuitem id="menu_ledger_heads" name="Ledgers"
+              parent="school_master_root" sequence="80"/>
+
+
+    <menuitem id="menu_finance_head" name="Ledger Head"
+              parent="menu_ledger_heads" action="action_finance_head"/>
+
+    <menuitem id="menu_cash_book" name="Cash Book"
+              parent="menu_ledger_heads"
+              action="action_cash_book"/>
+
+    <menuitem id="menu_bank_book" name="Bank Book"
+              parent="menu_ledger_heads"
+              action="action_bank_book"/>
+
+
+</odoo>
