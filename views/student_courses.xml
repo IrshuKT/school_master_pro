@@ -24,7 +24,6 @@
             <field name="arch" type="xml">
                 <form>
                     <div class="custom-sticky-header" position="sticky">
-
                         <header>
                             <button name="action_edit" type="object" string="Reset to draft"
                                     invisible="not is_locked"/>

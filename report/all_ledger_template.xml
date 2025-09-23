@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="ledger_report_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <!-- Header -->
+                    <div class="row">
+                        <div class="col-6">
+                            <h2 t-esc="docs[0].company_id.name"/>
+                        </div>
+                        <div class="col-6 text-right">
+                            <h3>Ledger Report</h3>
+                            <p>
+                                <span t-if="docs[0].date_from">
+                                    From:
+                                    <span t-esc="docs[0].get_formatted_date_from()"/>
+                                </span>
+                                <span t-if="docs[0].date_to">
+                                    To:
+                                    <span t-esc="docs[0].get_formatted_date_to()"/>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Ledger Info -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h4>Ledger:
+                                <span t-esc="docs[0].ledger_name.name or 'All Ledgers'"/>
+                            </h4>
+                        </div>
+                    </div>
+
+                    <!-- Transactions Table -->
+                    <table class="table table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Voucher No.</th>
+                                <th>Party/Source</th>
+                                <th>Description</th>
+                                <th>Voucher Type</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="transaction_data" t-value="docs[0].get_transaction_data()"/>
+                            <t t-set="transactions" t-value="transaction_data['transactions']"/>
+
+                            <t t-foreach="transactions" t-as="transaction">
+                                <tr>
+                                    <td t-esc="transaction['date']"/>
+                                    <td t-esc="transaction['name']"/>
+                                    <td t-esc="transaction['partner_id']"/>
+                                    <td t-esc="transaction['description']"/>
+                                    <td t-esc="transaction['voucher_type']"/>
+                                    <td style="text-align: right;">
+                                        <span t-esc="'%0.2f' % transaction['debit']"/>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <span t-esc="'%0.2f' % transaction['credit']"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr style="font-weight: bold;">
+                                <td colspan="5" class="text-right">Total:</td>
+                                <td style="text-align: right;" t-esc="'%0.2f' % transaction_data['total_debit']"/>
+                                <td style="text-align: right;" t-esc="'%0.2f' % transaction_data['total_credit']"/>
+                            </tr>
+                            <tr style="font-weight: bold;">
+                                <td colspan="5" class="text-right">Balance:</td>
+                                <td colspan="2" style="text-align: right;"
+                                    t-esc="'%0.2f' % transaction_data['balance']"/>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Footer -->
+                    <div class="row mt-4">
+                        <div class="col-12 text-center">
+                            <p>Generated on:
+                                <span t-esc="docs[0].get_current_date()"/>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <record id="ledger_report_action" model="ir.actions.report">
+        <field name="name">Ledger Report</field>
+        <field name="model">ledger.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">school_master_pro.ledger_report_template</field>
+        <field name="print_report_name">'Ledger_Report_%s' % (object.ledger_name.name or '')</field>
+        <field name="binding_model_id" ref="model_ledger_report"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
