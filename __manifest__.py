@@ -18,7 +18,7 @@ Long description of module's purpose
     'version': '0.2',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'mail', 'web'],
+    'depends': ['base', 'mail', 'web','contacts'],
 
     # always loaded
     'data': [
@@ -31,7 +31,7 @@ Long description of module's purpose
         'report/print_icon.xml',
         'report/all_ledger_template.xml',
         'views/student_exam_result.xml',
-        'views/teacher_view.xml',
+        'views/teacher_menu_restriction.xml',
         'views/student_master.xml',
         'views/error.action.message.xml',
         'views/teacher_master.xml',
@@ -47,6 +47,7 @@ Long description of module's purpose
         'views/finance_head.xml',
         'views/finance_vouchers.xml',
         'views/ledger_report.xml',
+        'views/teacher_own_course_year_filter.xml',
         # 'data/student_card_print.xml',
         'views/all_menu.xml',
         'views/back_button.xml',

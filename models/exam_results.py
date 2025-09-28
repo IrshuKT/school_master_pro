@@ -93,5 +93,15 @@ class ExamResult(models.Model):
                 record.grade = 'F'
                 record.grade_point = 0.0
 
+    @api.model
+    def default_get(self, fields):
+        res = super().default_get(fields)
+        if self.env.user.has_group('school_master_pro.group_teacher_user'):
+            # Automatically set the teacher_id to the current teacher
+            teacher = self.env.user.teacher_id
+            if teacher:
+                res['teacher_id'] = teacher.id
+        return res
+
 
 

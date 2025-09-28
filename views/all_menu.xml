@@ -7,7 +7,9 @@
     <!-- actions -->
 
     <menuitem id="menu_student_master" name="Students Master" parent="school_master_root"
-              action="action_student_master" sequence="10"/>
+              sequence="10"/>
+    <menuitem id="menu_student_master_one" name="Students Master" parent="menu_student_master"
+              action="action_student_master" sequence="1"/>
 
 
     <menuitem name="Teachers Master" id="teacher_master_menu" parent="school_master_root"

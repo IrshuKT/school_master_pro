@@ -110,3 +110,39 @@
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.95);
 }
+
+// Responsive css
+
+/* Mobile-first responsive styles */
+@media (max-width: 768px) {
+    .student-master-kanban {
+        flex-direction: column !important;
+        text-align: center;
+    }
+
+    .student-photo-container {
+        margin: 0 auto 10px auto !important;
+    }
+
+    .oe_kanban_details .row > div {
+        margin-bottom: 5px;
+    }
+
+    /* Form responsiveness */
+    .custom-sticky-header .btn {
+        margin-bottom: 5px;
+        width: 100%;
+    }
+
+    .o_form_sheet {
+        padding: 10px;
+    }
+}
+
+/* Tablet and desktop optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .col-lg-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}

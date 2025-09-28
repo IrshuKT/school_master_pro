@@ -153,7 +153,7 @@ class StudentFeeInvoice(models.Model):
 
             if term2_invoice and course.term_three_fee > 0:
                 #due_date = term1_invoice.invoice_date + timedelta(days=90)
-                due_date = term2_invoice.invoice_date + timedelta(minutes=5)  # ⏱ testing
+                due_date = term2_invoice.invoice_date + timedelta(minutes=10)  # ⏱ testing
                 if fields.Date.today() >= due_date:
                     exists = self.search([
                         ('student_id', '=', student.id),
