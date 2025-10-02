@@ -20,58 +20,104 @@
         <field name="arch" type="xml">
             <form create="false" edit="true">
                 <header>
-                   <button name="action_save" type="object" string="Save" class="btn btn-outline-success"
+                    <button name="action_save" type="object" string="Save" class="btn btn-outline-success"
                             invisible="is_locked"/>
                     <button name="action_edit" type="object" string="Rest to draft"
                             invisible="not is_locked"/>
-                     <button type="object" name="action_back" class="btn btn-secondary"
-                             invisible="not id"  string="⬅️ Back"/>
+                    <button type="object" name="action_back" class="btn btn-secondary"
+                            invisible="not id" string="⬅️ Back"/>
                     <field name="is_locked" invisible="1"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
 
 
                 </header>
                 <sheet>
+                    <group>
+                        <group string="Invoice Scope">
+                            <field name="student_id"
+                                   options="{'no_create': True}"
+                                   placeholder="Select to create for one student"/>
+                            <field name="course_id"
+                                   options="{'no_create': True}"
+                                   placeholder="Or select course for all students"/>
+                            <field name="year_id"
+                                   domain="[('course_id','=',course_id)]"
+                                   options="{'no_create': True}"
+                                   placeholder="Optional - restrict to year"/>
+                        </group>
 
-                    <div class="row align-items-center py-3" style="min-height:100px; border-bottom: 2px solid #000;">
-                        <!-- Left Side: Company Logo & Name -->
-                        <div class="col-6 d-flex align-items-center">
-                            <div class="me-3">
-                                <field name="company_logo" widget="image" class="o_logo_company"
-                                       style="max-width: 80px; max-height: 80px; object-fit: contain;"
-                                       alt="Company Logo" readonly="1"/>
-                            </div>
-                            <div>
-                                <h5 class="m-0 fw-bold text-dark">
-                                    <field name="company_id"/>
-                                </h5>
-                            </div>
-                        </div>
+                        <group string="Invoice Details">
+                            <field name="description"/>
+                            <field name="invoice_type"/>
+                            <field name="invoice_date"/>
+                            <field name="amount"/>
+                        </group>
+                    </group>
 
-                        <!-- Right Side: Student Master Title -->
-                        <div class="col-6 d-flex justify-content-end align-items-center">
-                            <h3 class="m-0 fw-bold text-primary" style="letter-spacing: 1px;">
-                                Invoices
-                            </h3>
-                        </div>
-                    </div>
+                    <group>
 
-                    <div class="row" style="margin-top:60px;">
-                        <div class="col-6">
-                            <group>
-                                <field name="student_id"/>
 
-                <field name="course_id"/>
-                <field name="year_id"/>
-
-                <field name="amount"/>
-                <field name="description"/>
-                <field name="invoice_date"/>
-                            </group>
-                        </div>
-                    </div>
+                        <button name="action_generate_invoices"
+                                string="Generate Invoices"
+                                type="object"
+                                class="btn-primary"/>
+                        <button string="Cancel"
+                                class="btn-secondary"
+                                special="cancel"/>
+                     </group>
 
                 </sheet>
+                <footer>
+                    <button name="action_generate_invoices"
+                            string="Generate Invoices"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+                <!--
+                                <sheet>
+                                    <div class="row align-items-center py-3" style="min-height:100px; border-bottom: 2px solid #000;">
+                                        # Left Side: Company Logo & Name
+                                        <div class="col-6 d-flex align-items-center">
+                                            <div class="me-3">
+                                                <field name="company_logo" widget="image" class="o_logo_company"
+                                                       style="max-width: 80px; max-height: 80px; object-fit: contain;"
+                                                       alt="Company Logo" readonly="1"/>
+                                            </div>
+                                            <div>
+                                                <h5 class="m-0 fw-bold text-dark">
+                                                    <field name="company_id"/>
+                                                </h5>
+                                            </div>
+                                        </div>
+
+                                        # Right Side: Student Master Title
+                                        <div class="col-6 d-flex justify-content-end align-items-center">
+                                            <h3 class="m-0 fw-bold text-primary" style="letter-spacing: 1px;">
+                                                Invoices
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="margin-top:60px;">
+                                        <div class="col-6">
+                                            <group>
+                                                <field name="student_id"/>
+
+                                <field name="course_id"/>
+                                <field name="year_id"/>
+
+                                <field name="amount"/>
+                                <field name="description"/>
+                                <field name="invoice_date"/>
+                                            </group>
+                                        </div>
+                                    </div>
+
+                                </sheet>
+                               -->
                 <chatter/>
             </form>
         </field>

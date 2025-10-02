@@ -7,16 +7,25 @@
     <!-- actions -->
 
     <menuitem id="menu_student_master" name="Students Master" parent="school_master_root"
-              action="action_student_master" sequence="10"/>
+              sequence="10"/>
+    <menuitem id="menu_student_master_one" name="Students Master" parent="menu_student_master"
+              action="action_student_master" sequence="1"/>
 
 
     <menuitem name="Teachers Master" id="teacher_master_menu" parent="school_master_root"
               action="teacher_master_action_window"
               sequence="20"/>
 
-    <menuitem name="Courses" id="configuration_menu_list" parent="school_master_root"
-              action="student_course_action_window"
+    <menuitem name="Course" id="configuration_menu_list" parent="school_master_root"
               sequence="30"/>
+
+    <menuitem name="Course" id="course_menu_list" parent="configuration_menu_list"
+              action="student_course_action_window"
+              sequence="10"/>
+    <menuitem name="Subject" id="subject_menu_list" parent="configuration_menu_list"
+              action="action_course_subject"
+              sequence="20"/>
+
 
     <menuitem name="Exam Master" id="school_exam_menu_list" parent="school_master_root"
               action="exam_result_action_window"

@@ -17,4 +17,5 @@ from . import student_concession_wizard
 from . import finance_balance
 from . import finance_head
 from . import finance_voucher
-
+from . import ledger_report
+from . import exam_subject

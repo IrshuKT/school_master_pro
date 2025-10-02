@@ -9,6 +9,8 @@
                         <field name="student_id"/>
                         <field name="admission_discount"/>
                         <field name="term_one_discount"/>
+                        <field name="term_two_discount"/>
+                        <field name="term_three_discount"/>
                         <field name="note"/>
                     </group>
                 </sheet>

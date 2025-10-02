@@ -13,7 +13,12 @@ class ExamResult(models.Model):
 
     student_id = fields.Many2one('student.master','Student Name ',tracking=True,required=True)
     exam_name_id = fields.Many2one('exam.name', string='Exam Name ',tracking=True,required=True)
-    exam_subject_id = fields.Many2one('exam.subject', string='Subject ',tracking=True,required=True)
+    exam_subject_id = fields.Many2one('exam.subject', string='Subject ',tracking=True,required=True,
+                                      domain="[('course_id','=',course_id), ('year_id','=',year_id)]")
+    course_id = fields.Many2one("student.class.name", string="Course", related="student_id.course_id", store=True,
+                                readonly=True)
+    year_id = fields.Many2one("course.year.line", string="Year", related="student_id.year_id", store=True,
+                              readonly=True)
     exam_total_mark = fields.Float(string='Total Marks ',tracking=True,required=True)
     obtained_mark = fields.Float(string='Mark Obtained ',tracking=True,required=True)
     #teacher_id = fields.Many2one('res.users', string="Teacher", default=lambda self: self.env.user)
@@ -92,6 +97,16 @@ class ExamResult(models.Model):
             else:
                 record.grade = 'F'
                 record.grade_point = 0.0
+
+    @api.model
+    def default_get(self, fields):
+        res = super().default_get(fields)
+        if self.env.user.has_group('school_master_pro.group_teacher_user'):
+            # Automatically set the teacher_id to the current teacher
+            teacher = self.env.user.teacher_id
+            if teacher:
+                res['teacher_id'] = teacher.id
+        return res
 
 
 

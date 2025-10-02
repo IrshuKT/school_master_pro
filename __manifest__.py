@@ -18,19 +18,21 @@ Long description of module's purpose
     'version': '0.2',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'mail', 'web'],
+    'depends': ['base', 'mail', 'web','contacts'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'security/teacher_login.xml',
+        'security/teacher_goback_access.xml',
         'data/receipt_sequence.xml',
         'data/roll_number_sequence.xml',
         'data/student_fee_cron.xml',
         'report/student_ledger_report.xml',
         'report/print_icon.xml',
+        'report/all_ledger_template.xml',
         'views/student_exam_result.xml',
-        'views/teacher_view.xml',
+        'views/teacher_menu_restriction.xml',
         'views/student_master.xml',
         'views/error.action.message.xml',
         'views/teacher_master.xml',
@@ -45,6 +47,9 @@ Long description of module's purpose
         'views/finance_balance.xml',
         'views/finance_head.xml',
         'views/finance_vouchers.xml',
+        'views/ledger_report.xml',
+        'views/teacher_own_course_year_filter.xml',
+        'views/exam_subject.xml',
         # 'data/student_card_print.xml',
         'views/all_menu.xml',
         'views/back_button.xml',

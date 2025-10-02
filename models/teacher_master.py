@@ -14,51 +14,35 @@ class TeacherMaster(models.Model):
 
     name = fields.Char(string='Teacher Name', required=True)
     gender= fields.Selection([('male','Male'),('female','Female')],string='Gender',default='male')
-    doj= fields.Date('Date of Joining')
-    year_of_service = fields.Char(string='Servicing Years',compute='_compute_year_of_service',
-        store=True
-    )
-    active=fields.Boolean('Active',default=True)
+    doj = fields.Date('Date of Joining')
+    year_of_service = fields.Char(string='Servicing Years',compute='_compute_year_of_service',store=True)
+    active = fields.Boolean('Active',default=True)
     contact_no = fields.Char(string='Contact No')
     emergency_contact = fields.Char(string='Emergency Contact')
     address = fields.Text('Address')
     designation_id = fields.Many2one('teacher.designation',string='Designation')
-    courses = fields.Many2one('student.class.name',string='Course')
-    std = fields.Many2many('student.class.no',string='Year')
     is_locked = fields.Boolean(string='Locked', default=False)
 
     user_id = fields.Many2one('res.users',string="Related User",ondelete="set null",index=True,tracking=True)
     course_year_batch_ids = fields.One2many('teacher.course.year.batch',
-        'teacher_id',string="Allocated Course-Year-Batches")
+        'teacher_id',string="Allocated Course-Year")
 
-    _sql_constraints = [
-        ('unique_user_teacher', 'unique(user_id)', 'Each user can only have one teacher profile.')
-    ]
-
-
-    student_ids = fields.One2many('student.master','teacher_id',string="Assigned Students")
-
-    course_ids = fields.Many2many(
-        'student.class.name',
-        'teacher_course_rel','teacher_id','course_id',string="Allocated Courses")
-
-    year_ids = fields.Many2many(
-        'course.year.line',
-        'teacher_year_rel','teacher_id','year_id',string="Allocated Years")
-
-    batch_ids = fields.Many2many(
-        'student.division','teacher_batch_rel','teacher_id','batch_id',string="Allocated Batches",tracking=True)
-
-
-    company_logo = fields.Binary(string='Company Logo',related='company_id.logo',readonly=True)
+    company_logo = fields.Binary(string='Company Logo', related='company_id.logo', readonly=True)
     company_id = fields.Many2one(
-        'res.company',string='Company',default=lambda self: self.env.company,readonly=True)
+        'res.company', string='Company', default=lambda self: self.env.company, readonly=True)
 
     state = fields.Selection([
         ('draft', 'Draft'),
         ('confirmed', 'Confirmed'),
     ], string="Status", default='draft', tracking=True)
 
+    def get_allocated_course_years(self):
+        self.ensure_one()
+        return [(line.course_id.id, line.year_id.id) for line in self.course_year_batch_ids]
+
+    _sql_constraints = [
+        ('unique_user_teacher', 'unique(user_id)', 'Each user can only have one teacher profile.')
+    ]
 
     @api.depends('doj')
     def _compute_year_of_service(self):
@@ -69,6 +53,7 @@ class TeacherMaster(models.Model):
                 record.year_of_service = f"{delta.years}y {delta.months}m {delta.days}d"
             else:
                 record.year_of_service = "0y 0m 0d"
+
     def action_save(self):
         self.write({'is_locked': True})
         for rec in self:
@@ -88,7 +73,6 @@ class TeacherMaster(models.Model):
             "tag": "do-action-replace-history",
             "params": {"action": action},
         }
-
 
     def write(self, vals):
         # If state is being set to draft, always unlock
@@ -122,4 +106,28 @@ class TeacherMaster(models.Model):
                     rec.user_id.sudo().write({'groups_id': [(4, teacher_group.id)]})
 
         return res
+
+
+
+
+    #student_ids = fields.One2many('student.master','teacher_id',string="Assigned Students")
+
+    # #course_ids = fields.Many2many(
+    #     'student.class.name',
+    #     'teacher_course_rel','teacher_id','course_id',string="Allocated Courses")
+    #
+    # year_ids = fields.Many2many(
+    #     'course.year.line',
+    #     'teacher_year_rel','teacher_id','year_id',string="Allocated Years")
+
+    # batch_ids = fields.Many2many(
+    #     'student.division','teacher_batch_rel','teacher_id','batch_id',string="Allocated Batches",tracking=True)
+    #
+    # courses = fields.Many2one('student.class.name',string='Course')
+    # std = fields.Many2many('student.class.no',string='Year')
+
+
+
+
+
 

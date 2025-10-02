@@ -1,21 +1,22 @@
 <!-- finance_balance_kanban.xml -->
 <odoo>
 
-        <record id="view_finance_transaction_tree" model="ir.ui.view">
-            <field name="name">finance.transaction.tree</field>
-            <field name="model">finance.transaction</field>
-            <field name="arch" type="xml">
-                <list create="false" edit="false" delete="false">
-                    <field name="date"/>
-                    <field name="account_type"/>
-                    <field name="description"/>
-                    <field name="direction"/>
-                    <field name="amount"/>
-                    <field name="running_balance"/>
-                </list>
-            </field>
-        </record>
-
+    <record id="view_finance_transaction_tree" model="ir.ui.view">
+        <field name="name">finance.transaction.tree</field>
+        <field name="model">finance.transaction</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false">
+                <field name="date"/>
+                <field name="account_type"/>
+                <field name="head_id"/>
+                <field name="description"/>
+                <field name="direction"/>
+                <field name="amount"/>
+                <field name="signed_amount"/>
+                <field name="running_balance"/>
+            </list>
+        </field>
+    </record>
 
 
     <record id="action_cash_book" model="ir.actions.act_window">

@@ -3,9 +3,12 @@ import re
 from datetime import date
 
 import dateutil
+import self
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class StudentMaster(models.Model):
@@ -24,9 +27,9 @@ class StudentMaster(models.Model):
     ], string='Gender ')
     reg_no = fields.Char('University Reg No',tracking=True)
     is_sponsor = fields.Boolean('Is Sponsored ?',default=False,tracking=True)
-    sponsor_note = fields.Text('Remarks',tracking=True)
+    sponsor_note = fields.Text('Sponsor Details',tracking=True)
     is_concession = fields.Boolean('Is Concession ?',default=False,tracking=True)
-    concession_note = fields.Text('Remarks',tracking=True)
+    concession_note = fields.Text('Concession Details',tracking=True)
     dob = fields.Date(string='D O B ')
     age = fields.Integer(string='Age ', compute='_compute_age', readonly=True, store=False)
     teacher_id = fields.Many2one('teacher.master', string='Teacher ')
@@ -47,25 +50,14 @@ class StudentMaster(models.Model):
     aadhaar_card = fields.Char(string='Aadhaar Card No ')
     has_aadhaar = fields.Boolean(compute='_compute_has_aadhaar', store=True)
     active = fields.Boolean(string='Active', default=True)
-
     company_logo = fields.Binary(string='Company Logo', related='company_id.logo', readonly=True)
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, readonly=True)
     course_id = fields.Many2one('student.class.name', string="Course", required=True,tracking=True)
     year_id = fields.Many2one(
         'course.year.line',string="Year",domain="[('course_id', '=', course_id)]", required=True,tracking=True)
-    batch_id = fields.Many2one(
-        'student.division',string="Batch",domain="[('course_id', '=', course_id)]")
-
     course_year_batch_key = fields.Char(compute="_compute_course_year_batch_key",store=True, index=True)
-
-    @api.depends('course_id', 'year_id', 'batch_id')
-    def _compute_course_year_batch_key(self):
-        for rec in self:
-            rec.course_year_batch_key = f"{rec.course_id.id}-{rec.year_id.id}-{rec.batch_id.id}"
-
     total_fees_accumulated = fields.Float(string='Total Fees Accumulated', default=0.0, readonly=True)
     total_fees_receipted = fields.Float(string='Total Receipted Amount', default=0.0, readonly=True)
-    #academic_id = fields.Many2one('student.academic', string='Academic Record')
     current_balance = fields.Float(
         string="Current Balance :",
         compute="_compute_current_balance",
@@ -75,20 +67,36 @@ class StudentMaster(models.Model):
         ('draft', 'Draft'),
         ('confirmed', 'Confirmed'),
     ], string="Status", default='draft', tracking=True)
-    last_fee_addition = fields.Datetime(string='Last Fee Addition', readonly=True)
+    #last_fee_addition = fields.Datetime(string='Last Fee Addition', readonly=True)
     exam_ids = fields.One2many('exam.result', 'student_id', string='Exam Details')
     transport_ids = fields.One2many('student.transportation', 'student_id', string="Transport Details")
     monthly_fee_ids = fields.One2many('transport.monthly.fee', 'transport_id', string='Monthly Fees')
     fee_invoice_ids = fields.One2many('student.fee.invoice', 'student_id', string="Invoices")
     fee_receipt_ids = fields.One2many('student.fee.receipt', 'student_id', string="Receipts")
+    document_collection_ids = fields.One2many('student.documents.collection', 'student_id',
+        string='Document Collections')
+    pending_document_ids = fields.One2many('student.documents.line',compute='_compute_pending_documents',
+        string='Pending Documents',store=False)
     receipt_type = fields.Selection([
         ('charge', 'Charge'),
         ('payment', 'Payment')
     ], default='payment', string="Type", tracking=True)
 
+    key = fields.Char(compute="_compute_key", store=True, index=True)
+
+    @api.depends('course_id', 'year_id', )
+    def _compute_course_year_batch_key(self):
+        for rec in self:
+            rec.course_year_batch_key = f"{rec.course_id.id}-{rec.year_id.id}"
+
+    @api.depends('course_id', 'year_id')
+    def _compute_key(self):
+        for rec in self:
+            rec.key = f"{rec.course_id.id}-{rec.year_id.id}" if rec.course_id and rec.year_id else False
+
     _sql_constraints = [
-        ('roll_number_unique', 'UNIQUE(student_roll_number, year_id, batch_id)',
-         'Roll number must be unique per year and batch.')
+        ('roll_number_unique', 'UNIQUE(student_roll_number, year_id,course_id)',
+         'Roll number must be unique.')
     ]
 
     @api.depends('dob')
@@ -148,23 +156,15 @@ class StudentMaster(models.Model):
 
 
     def action_go_back(self):
+       action = self.env["ir.actions.actions"]._for_xml_id("school_master_pro.action_student_master")
+       action["clear_breadcrumbs"] = True
+       action["target"] = "main"
+       return action
+
         # This will navigate back to the action that opens the Kanban/Tree view
-        action = self.env.ref('school_master_pro.action_student_master').read()[0]
-        action['target'] = 'main'
-        return action
-
-    def create_new_student(self):
-        """Start fresh new student form directly from root,
-        not stacking on top of previous record."""
-        return {
-            "type": "ir.actions.act_window",
-            "res_model": "student.master",
-            "view_mode": "form",
-            "target": "current",
-            "context": {"default_state": "draft"},
-        }
-
-
+       # action = self.env.ref('school_master_pro.action_student_master').read()[0]
+        #action['target'] = 'main'
+        #return action
 
     @api.depends('aadhaar_card')
     def _compute_has_aadhaar(self):
@@ -211,12 +211,52 @@ class StudentMaster(models.Model):
         for rec in self:
             # always take original invoice totals
             charges = sum(inv.original_amount for inv in rec.fee_invoice_ids if inv.state == 'confirmed')
-
             # payments + concessions reduce balance
             reductions = sum(rc.amount for rc in rec.fee_receipt_ids if rc.state == 'confirmed')
-
             rec.current_balance = charges - reductions
 
+    @api.depends('document_collection_ids.document_line_ids.returned_date')
+    def _compute_pending_documents(self):
+        for student in self:
+            student.pending_document_ids = student.document_collection_ids.mapped('document_line_ids').filtered(
+                lambda line: not line.returned_date
+            )
+
+    def action_open_concession_wizard(self):
+        return {
+            "name": "Apply Concession",
+            "type": "ir.actions.act_window",
+            "res_model": "student.concession.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_student_id": self.id},
+        }
+
+    @api.constrains("course_id", "year_id")
+    def _check_course_year_match(self):
+        for rec in self:
+            if rec.course_id and rec.year_id and rec.year_id.course_id != rec.course_id:
+                raise ValidationError(
+                    f"Selected Year '{rec.year_id.display_name}' does not belong to Course '{rec.course_id.display_name}'.")
+
+    @api.model
+    def default_get(self, fields):
+        res = super().default_get(fields)
+        if self.env.user.teacher_id:
+            teacher = self.env.user.teacher_id
+            res['teacher_id'] = teacher.id
+            if teacher.course_year_batch_ids:
+                res['course_id'] = teacher.course_year_batch_ids[0].course_id.id
+                res['year_id'] = teacher.course_year_batch_ids[0].year_id.id
+        return res
+
+    # batch_id = fields.Many2one(
+    #     'student.division',string="Batch",domain="[('course_id', '=', course_id)]")
+    #academic_id = fields.Many2one('student.academic', string='Academic Record')
+
+
+
+    """ 
     @api.constrains('student_class_name')
     def _check_course_capacity(self):
         for rec in self:
@@ -247,41 +287,13 @@ class StudentMaster(models.Model):
                         f"Course '{rec.student_class_name.name}' - Year '{rec.student_class.name}' "
                         f"has reached its maximum capacity ({rec.student_class_name.max_count} students)."
                     )
-
-    document_collection_ids = fields.One2many(
-        'student.documents.collection',
-        'student_id',
-        string='Document Collections'
-    )
-
-    pending_document_ids = fields.One2many(
-        'student.documents.line',
-        compute='_compute_pending_documents',
-        string='Pending Documents',
-        store=False
-    )
-
-    @api.depends('document_collection_ids.document_line_ids.returned_date')
-    def _compute_pending_documents(self):
-        for student in self:
-            student.pending_document_ids = student.document_collection_ids.mapped('document_line_ids').filtered(
-                lambda line: not line.returned_date
-            )
-
-    def action_open_concession_wizard(self):
+                    
+      def create_new_student(self):
         return {
-            "name": "Apply Concession",
             "type": "ir.actions.act_window",
-            "res_model": "student.concession.wizard",
+            "res_model": "student.master",
             "view_mode": "form",
-            "target": "new",
-            "context": {"default_student_id": self.id},
+            "target": "current",
+            "context": {"default_state": "draft"},
         }
-
-    @api.constrains("course_id", "year_id")
-    def _check_course_year_match(self):
-        for rec in self:
-            if rec.course_id and rec.year_id and rec.year_id.course_id != rec.course_id:
-                raise ValidationError(
-                    f"Selected Year '{rec.year_id.display_name}' does not belong to Course '{rec.course_id.display_name}'."
-                )
+    """

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ledger_report_form_view" model="ir.ui.view">
+        <field name="name">Ledger Report</field>
+        <field name="model">ledger.report</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="row align-items-center py-3"
+                         style="min-height:100px; border-bottom: 2px solid #000;">
+                        <div class="col-6 d-flex align-items-center">
+                            <div class="me-3">
+                                <field name="company_logo" widget="image" class="o_logo_company"
+                                       style="max-width: 80px; max-height: 80px; object-fit: contain;"
+                                       alt="Company Logo" readonly="1"/>
+                            </div>
+                            <div>
+                                <h5 class="m-0 fw-bold text-dark">
+                                    <field name="company_id"/>
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="col-6 d-flex justify-content-end align-items-center">
+                            <h3 class="m-0 fw-bold text-primary" style="letter-spacing: 1px;">
+                                Ledger Report
+                            </h3>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:60px">
+                        <div class="col-3">
+                            <group>
+                                <field name="date_from"/>
+                            </group>
+                        </div>
+                        <div class="col-3">
+                            <group>
+                                <field name="date_to"/>
+                            </group>
+                        </div>
+                        <div class="col-3">
+                            <group>
+                                <field name="ledger_name"/>
+                            </group>
+                        </div>
+                        <div class="col-3">
+                            <group>
+                                <button name="action_get" string="Get"  type="object" class="btn btn-success"/>
+                                <button name="action_clear" string="Clear"   type="object" class="btn btn-success"/>
+                            </group>
+                        </div>
+
+                    </div>
+                    <div>
+
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="ledger_report_action_menu" model="ir.actions.act_window">
+        <field name="name">Ledger</field>
+        <field name="res_model">ledger.report</field>
+        <field name="view_mode">form</field>
+    </record>
+
+    <menuitem id="ledger_report_menu" name="Ledger Report" parent="menu_ledger_heads"
+              action="ledger_report_action_menu"/>
+
+</odoo>

@@ -5,7 +5,8 @@ class StudentClassName(models.Model):
     _description = 'Available Courses and its fees'
     _inherit = ["mail.thread", "mail.activity.mixin"]
 
-    course_no = fields.Integer(string='Course ID')
+    #course_no = fields.Integer(string='Course ID')
+    course_id = fields.Char(string='Course ID')
     name = fields.Char(string='Class Name', required=True)
     duration = fields.Integer('Course Duration')
     admission_fee = fields.Float('Admission Fee')
@@ -20,6 +21,7 @@ class StudentClassName(models.Model):
 
     student_ids = fields.One2many('student.master', 'course_id', string="Students")
     year_line_ids = fields.One2many('course.year.line', 'course_id', string="Years")
+    subject_ids = fields.One2many('exam.subject', 'course_id', string="Subjects")
     batch_ids = fields.One2many('student.division', 'course_id', string="Batches")
 
 
@@ -69,7 +71,6 @@ class StudentClassName(models.Model):
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_back(self):
-        # Do nothing if the record is new (no ID)
         if not self.id:
             return {'type': 'ir.actions.do_nothing'}
         action = self.env.ref("school_master_pro.student_course_action_window").read()[0]
@@ -97,15 +98,10 @@ class CourseYearLine(models.Model):
 
     name = fields.Char(string="Year Name", required=True)
     sequence = fields.Integer(string="Year No.", required=True)
-    course_id = fields.Many2one(
-        'student.class.name',
-        string="Course",
-        required=True,
-        ondelete="cascade"
-    )
-
+    course_id = fields.Many2one('student.class.name',string="Course",required=True,ondelete="cascade")
     active = fields.Boolean(string="Active", default=True)
     display_name = fields.Char(string='Display Name', compute='_compute_display_name', store=True)
+    subject_ids = fields.One2many('exam.subject', 'year_id', string="Subjects")
 
 
     @api.depends('course_id', 'name')
@@ -116,5 +112,7 @@ class CourseYearLine(models.Model):
             rec.display_name = (f"{course} - {year}").strip(' -')
 
     def name_get(self):
-        """Ensure every widget that uses name_get shows course - year"""
         return [(rec.id, rec.display_name or '') for rec in self]
+
+
+

@@ -214,26 +214,3 @@ class ExamName(models.Model):
         }
 
 
-class ExamSubject(models.Model):
-    _name = 'exam.subject'
-    _description = 'Exam Subject'
-    _inherit = ["mail.thread", "mail.activity.mixin"]
-
-
-    name = fields.Char(string='Subject Name')
-    is_locked = fields.Boolean(string='Locked', default=False)
-
-    def action_save(self):
-        self.write({'is_locked': True})
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
-
-    def action_edit(self):
-        self.write({'is_locked': False})
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
-

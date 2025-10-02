@@ -80,11 +80,11 @@
                             </div>
                         </div>
                         <notebook>
-                            <page string="Course-Year-Batch">
+                            <page string="Course &amp; Year">
                                 <field name="course_year_batch_ids" readonly="is_locked">
                                     <list editable="bottom">
                                         <field name="course_id"/>
-                                        <field name="year_id"/>
+                                        <field name="year_id" domain="[('course_id', '=', course_id)]"/>
                                     </list>
                                 </field>
                             </page>
