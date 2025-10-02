@@ -156,10 +156,15 @@ class StudentMaster(models.Model):
 
 
     def action_go_back(self):
+       action = self.env["ir.actions.actions"]._for_xml_id("school_master_pro.action_student_master")
+       action["clear_breadcrumbs"] = True
+       action["target"] = "main"
+       return action
+
         # This will navigate back to the action that opens the Kanban/Tree view
-        action = self.env.ref('school_master_pro.action_student_master').read()[0]
-        action['target'] = 'main'
-        return action
+       # action = self.env.ref('school_master_pro.action_student_master').read()[0]
+        #action['target'] = 'main'
+        #return action
 
     @api.depends('aadhaar_card')
     def _compute_has_aadhaar(self):

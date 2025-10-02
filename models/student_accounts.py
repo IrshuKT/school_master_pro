@@ -2,6 +2,8 @@ from odoo import models, fields, api
 from datetime import datetime, timedelta
 import logging
 
+from odoo.exceptions import UserError
+
 _logger = logging.getLogger(__name__)
 
 class StudentMasterOne(models.Model):
@@ -17,14 +19,11 @@ class StudentFeeInvoice(models.Model):
     _rec_name = 'description'
 
 
-    student_id = fields.Many2one('student.master', string="Student", required=True, ondelete='cascade')
-    course_id = fields.Many2one('student.class.name', string="Course", readonly=True)
-    year_id = fields.Many2one(
-        'course.year.line',
-        string="Year",
-        domain="[('course_id', '=', course_id)]",  # 🔑 Only years of selected course
-        required=True
-    )
+    student_id = fields.Many2one('student.master', string="Student", ondelete='cascade')
+    course_id = fields.Many2one('student.class.name', string="Course",ondelete='cascade')
+    year_id = fields.Many2one('course.year.line',string="Year",domain="[('course_id', '=', course_id)]",
+                              ondelete='cascade')
+    #domain="[('course_id', '=', course_id)]",  # 🔑 Only years of selected course
     original_amount = fields.Float(string="Original Amount", readonly=True)
     discount_amount = fields.Float(string="Concession", readonly=True)
     amount = fields.Float(string="Invoice Amount", required=True, tracking=True)
@@ -55,8 +54,8 @@ class StudentFeeInvoice(models.Model):
     def _onchange_student_id(self):
         for rec in self:
             if rec.student_id:
-                rec.course_id = rec.student_id.student_class_name.id
-                rec.year_id = rec.student_id.student_class.id
+                rec.course_id = rec.student_id.course_id.id
+                rec.year_id = rec.student_id.year_id.id
             else:
                 rec.course_id = False
                 rec.year_id = False
@@ -81,10 +80,13 @@ class StudentFeeInvoice(models.Model):
          'Only one term one fee invoice allowed per student!'),
     ]
     """
+
     def action_save(self):
-        self.write({'is_locked': True})
-        for rec in self:
-            rec.state = 'confirmed'
+        # Use single write operation for better performance
+        self.write({
+            'is_locked': True,
+            'state': 'confirmed'
+        })
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_edit(self):
@@ -175,3 +177,109 @@ class StudentFeeInvoice(models.Model):
 
         _logger.info("✅ Cron generated %s new term invoices", invoice_count)
         return invoice_count
+
+    """
+    def action_generate_invoices(self):
+        Student = self.env['student.master']
+
+        # 🔎 Decide scope
+        if self.student_id:
+            students = self.student_id
+        elif self.course_id and self.year_id:
+            students = Student.search([
+                ('course_id', '=', self.course_id.id),
+                ('year_id', '=', self.year_id.id)
+            ])
+        elif self.course_id:
+            students = Student.search([
+                ('course_id', '=', self.course_id.id)
+            ])
+        else:
+            students = Student.search([])
+
+        if not students:
+            raise UserError("⚠️ No students found for the selected criteria.")
+
+        # Create all invoices at once for better performance
+        invoice_vals_list = []
+        for student in students:
+            invoice_vals_list.append({
+                'student_id': student.id,
+                'course_id': student.course_id.id,
+                'year_id': student.year_id.id,
+                'invoice_date': fields.Date.today(),
+                'description': self.description,
+                'amount': self.amount,
+                'invoice_type': self.invoice_type,
+                'state': 'confirmed',
+                'company_id': self.env.company.id,
+                'original_amount': self.amount,
+            })
+
+        # ✅ Create all invoices in one operation
+        invoices = self.env['student.fee.invoice'].create(invoice_vals_list)
+
+        # ✅ Show rainbow man effect and open invoices
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'student.fee.invoice',
+            'view_mode': 'list',
+            'target': 'current',
+            'domain': [('id', 'in', invoices.ids)],
+            'context': {},
+            'views': [(False, 'list')],
+        }
+    """
+
+    def action_generate_invoices(self):
+        Student = self.env['student.master']
+
+        # 🔎 Decide scope
+        if self.student_id:
+            students = self.student_id
+        elif self.course_id and self.year_id:
+            students = Student.search([
+                ('course_id', '=', self.course_id.id),
+                ('year_id', '=', self.year_id.id)
+            ])
+        elif self.course_id:
+            students = Student.search([
+                ('course_id', '=', self.course_id.id)
+            ])
+        else:
+            students = Student.search([])  # All students
+
+        if not students:
+            raise UserError("⚠️ No students found for the selected criteria.")
+
+        invoices = self.env['student.fee.invoice']
+        for student in students:
+            vals = {
+                'student_id': student.id,
+                'course_id': student.course_id.id,
+                'year_id': student.year_id.id,
+                'invoice_date': fields.Date.today(),
+                'description': self.description,
+                'amount': self.amount,
+                'invoice_type': self.invoice_type,
+                'state': 'confirmed',  # Create as confirmed
+                'is_locked': True,  # Set as locked
+                'company_id': self.env.company.id,
+                'original_amount': self.amount,
+            }
+            invoices |= self.create(vals)
+
+        # ✅ Still call action_save to ensure UI updates properly
+        # This will set is_locked=True and state=confirmed (already set, but ensures consistency)
+        invoices.write({'is_locked': True, 'state': 'confirmed'})
+
+        return {
+            'effect': {
+                'fadeout': 'slow',
+                'message': f"✅ {len(invoices)} invoices created and saved successfully!",
+                'type': 'rainbow_man',
+            },
+            'type': 'ir.actions.act_window',
+            'res_model': 'student.fee.invoice',
+            'view_mode': 'list,form',
+        }

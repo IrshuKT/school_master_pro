@@ -13,7 +13,12 @@ class ExamResult(models.Model):
 
     student_id = fields.Many2one('student.master','Student Name ',tracking=True,required=True)
     exam_name_id = fields.Many2one('exam.name', string='Exam Name ',tracking=True,required=True)
-    exam_subject_id = fields.Many2one('exam.subject', string='Subject ',tracking=True,required=True)
+    exam_subject_id = fields.Many2one('exam.subject', string='Subject ',tracking=True,required=True,
+                                      domain="[('course_id','=',course_id), ('year_id','=',year_id)]")
+    course_id = fields.Many2one("student.class.name", string="Course", related="student_id.course_id", store=True,
+                                readonly=True)
+    year_id = fields.Many2one("course.year.line", string="Year", related="student_id.year_id", store=True,
+                              readonly=True)
     exam_total_mark = fields.Float(string='Total Marks ',tracking=True,required=True)
     obtained_mark = fields.Float(string='Mark Obtained ',tracking=True,required=True)
     #teacher_id = fields.Many2one('res.users', string="Teacher", default=lambda self: self.env.user)

@@ -24,6 +24,7 @@ Long description of module's purpose
     'data': [
         'security/ir.model.access.csv',
         'security/teacher_login.xml',
+        'security/teacher_goback_access.xml',
         'data/receipt_sequence.xml',
         'data/roll_number_sequence.xml',
         'data/student_fee_cron.xml',
@@ -48,6 +49,7 @@ Long description of module's purpose
         'views/finance_vouchers.xml',
         'views/ledger_report.xml',
         'views/teacher_own_course_year_filter.xml',
+        'views/exam_subject.xml',
         # 'data/student_card_print.xml',
         'views/all_menu.xml',
         'views/back_button.xml',
