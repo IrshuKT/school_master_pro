@@ -1,8 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 school_master_pro.access_exam_result,access_exam_result,school_master_pro.model_exam_result,base.group_user,1,1,1,1
-school_master_pro.access_student_class_no,access_student_class_no,school_master_pro.model_student_class_no,base.group_user,1,1,1,1
 school_master_pro.access_student_class_name,access_student_class_name,school_master_pro.model_student_class_name,base.group_user,1,1,1,1
-school_master_pro.access_student_division,access_student_division,school_master_pro.model_student_division,base.group_user,1,1,1,1
 school_master_pro.access_teacher_designation,access_teacher_designation,school_master_pro.model_teacher_designation,base.group_user,1,1,1,1
 school_master_pro.access_student_master,access_student_master,school_master_pro.model_student_master,base.group_user,1,1,1,1
 school_master_pro.access_teacher_master,access_teacher_master,school_master_pro.model_teacher_master,base.group_user,1,1,1,1
@@ -24,6 +22,8 @@ school_master_pro.access_finance_transaction,access_finance_transaction,school_m
 school_master_pro.access_finance_head,access_finance_head,school_master_pro.model_finance_head,base.group_user,1,1,1,1
 school_master_pro.access_finance_voucher,access_finance_voucher,school_master_pro.model_finance_voucher,base.group_user,1,1,1,1
 school_master_pro.access_ledger_report,access_ledger_report,school_master_pro.model_ledger_report,base.group_user,1,1,1,1
+school_master_pro.access_receipt_warning_wizard,access_receipt_warning_wizard,school_master_pro.model_receipt_warning_wizard,base.group_user,1,1,1,1
+
 
 
 

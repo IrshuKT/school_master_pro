@@ -2,20 +2,20 @@
 {
     'name': "School Master Pro",
 
-    'summary': "Short (1 phrase/line) summary of the module's purpose",
+    'summary': "Complete student Mangement Module",
 
     'description': """
 Long description of module's purpose
     """,
 
     'author': "Irshad K T",
-    'website': "https://www.yourcompany.com",
+    'website': "www.linkedin.com/in/irshadkt",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'School',
-    'version': '0.2',
+    'category': 'Student Managment',
+    'version': '1.6',
 
     # any module necessary for this one to work correctly
     'depends': ['base', 'mail', 'web','contacts'],
@@ -28,6 +28,7 @@ Long description of module's purpose
         'data/receipt_sequence.xml',
         'data/roll_number_sequence.xml',
         'data/student_fee_cron.xml',
+        'data/student_promotion.cron.xml',
         'report/student_ledger_report.xml',
         'report/print_icon.xml',
         'report/all_ledger_template.xml',
@@ -36,7 +37,6 @@ Long description of module's purpose
         'views/student_master.xml',
         'views/error.action.message.xml',
         'views/teacher_master.xml',
-        'views/settings.xml',
         'views/student_fee_receipt.xml',
         'views/student_fee_invoice.xml',
         'views/student_ledger.xml',
@@ -53,6 +53,7 @@ Long description of module's purpose
         # 'data/student_card_print.xml',
         'views/all_menu.xml',
         'views/back_button.xml',
+        'wizard/receipt_warning_wizard.xml',
 
     ],
 
@@ -61,11 +62,11 @@ Long description of module's purpose
 
             # 'school_master/static/src/js/student_warining_okbutton.js',
             'school_master_pro/static/src/js/student_master_warning.js',
-            'school_master_pro/static/src/js/teacher_autosave.js',
+            'school_master_pro/static/src/js/draft_save_warning.js',
             'school_master_pro/static/src/js/back_button_patch.js',
             'school_master_pro/static/src/js/student_master_kanban.js',
             # 'school_master/static/src/js/cancel_button.js',
-            #'school_master/static/src/js/auto_logout.js',
+            'school_master_pro/static/src/js/auto_logout.js',
             'school_master_pro/static/src/css/student_master.css',
             # 'school_master_pro/static/src/css/hide_form_icon.css',
 
@@ -76,5 +77,6 @@ Long description of module's purpose
         'demo/demo.xml',
     ],
     'application': True,
-    'license': 'LGPL-3'
+    'license': 'LGPL-3',
+    'icon': 'school_master_pro/static/description/icon.png',
 }

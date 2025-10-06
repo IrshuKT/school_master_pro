@@ -29,14 +29,14 @@
 </odoo>
 -->
 <!--</odoo>-->
-<odoo>
-    <record id="ir_cron_generate_next_term_invoices" model="ir.cron">
-        <field name="name">Generate Term Invoices (Test)</field>
-        <field name="model_id" ref="school_master_pro.model_student_fee_invoice"/>
-        <field name="state">code</field>
-        <field name="code">model.generate_next_term_invoices()</field>
-        <field name="interval_number">5</field>   <!-- run every 5 minutes -->
-        <field name="interval_type">minutes</field>
-        <field name="active" eval="True"/>
-    </record>
-</odoo>
+    <odoo>
+        <record id="ir_cron_generate_next_term_invoices" model="ir.cron">
+            <field name="name">Generate Term Invoices (Test)</field>
+            <field name="model_id" ref="school_master_pro.model_student_fee_invoice"/>
+            <field name="state">code</field>
+            <field name="code">model.generate_next_term_invoices()</field>
+            <field name="interval_number">5</field>   <!-- run every 5 minutes -->
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
+    </odoo>

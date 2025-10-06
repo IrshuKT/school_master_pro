@@ -27,7 +27,7 @@
                                 invisible="is_locked"/>
                         <button name="action_edit" type="object" string="Edit" class="btn btn-outline-info"
                                 invisible="not is_locked"/>
-                        <button name="action_go_back" string="Go Back" type="object" class="btn-secondary"
+                        <button name="action_go_back" string="⬅️ Back" type="object" class="btn-secondary"
                                 invisible="not id"/>
                         <button string="Go Back" class="btn-secondary" special="cancel"
                                 invisible="name"/>
@@ -95,7 +95,7 @@
                         </page>
                         <page string="Transportation Details" readonly="1" invisible="student_trans != 'school_bus'">
                             <field name="transport_ids" readonly="is_locked">
-                                <list>
+                                <list options="{'no_open': True}">
                                     <field name="student_id" readonly="1"/>
                                     <field name="student_trans" readonly="1"/>
                                     <field name="transport_mode" readonly="1"/>
@@ -105,7 +105,7 @@
                         </page>
                         <page string="Monthly Fees" invisible="student_trans != 'school_bus'">
                             <field name="monthly_fee_ids" readonly="is_locked">
-                                <list editable="bottom">
+                                <list editable="bottom" options="{'no_open': True}">
                                     <field name="month"/>
                                     <field name="amount"/>
                                     <field name="due_date"/>
@@ -119,13 +119,13 @@
                         </page>
                         <page string="Invoice Details">
                             <field name="fee_invoice_ids" readonly="is_locked">
-                                <list options="{'no_open': True}">
+                                <list >
                                     <field name="invoice_date"/>
-                                    <field name="student_id"/>
-                                    <field name="course_id"/>
-                                    <field name="year_id"/>
-                                    <field name="amount"/>
-                                    <field name="description"/>
+                                    <field name="student_id" />
+                                    <field name="course_id" />
+                                    <field name="year_id" />
+                                    <field name="amount" />
+                                    <field name="description" />
                                 </list>
                             </field>
                         </page>

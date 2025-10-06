@@ -67,12 +67,10 @@ class TeacherMaster(models.Model):
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_back(self):
-        action = self.env.ref("school_master_pro.teacher_master_action_window").read()[0]
-        return {
-            "type": "ir.actions.client",
-            "tag": "do-action-replace-history",
-            "params": {"action": action},
-        }
+        action = self.env["ir.actions.actions"]._for_xml_id("school_master_pro.teacher_master_action_window")
+        action["clear_breadcrumbs"] = True
+        action["target"] = "main"
+        return action
 
     def write(self, vals):
         # If state is being set to draft, always unlock
@@ -107,24 +105,6 @@ class TeacherMaster(models.Model):
 
         return res
 
-
-
-
-    #student_ids = fields.One2many('student.master','teacher_id',string="Assigned Students")
-
-    # #course_ids = fields.Many2many(
-    #     'student.class.name',
-    #     'teacher_course_rel','teacher_id','course_id',string="Allocated Courses")
-    #
-    # year_ids = fields.Many2many(
-    #     'course.year.line',
-    #     'teacher_year_rel','teacher_id','year_id',string="Allocated Years")
-
-    # batch_ids = fields.Many2many(
-    #     'student.division','teacher_batch_rel','teacher_id','batch_id',string="Allocated Batches",tracking=True)
-    #
-    # courses = fields.Many2one('student.class.name',string='Course')
-    # std = fields.Many2many('student.class.no',string='Year')
 
 
 

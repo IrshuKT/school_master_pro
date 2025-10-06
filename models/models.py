@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
-
+"""
 # view created sequence 20
 class StudentClassNo(models.Model):
     _name = 'student.class.no'
@@ -36,7 +36,6 @@ class StudentClassNo(models.Model):
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_new_year(self):
-        """Open a blank new form for another receipt"""
         return {
             'type': 'ir.actions.act_window',
             'name': 'New Year',
@@ -146,7 +145,6 @@ class StudentDivision(models.Model):
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_new_batch(self):
-        """Open a blank new form for another receipt"""
         return {
             'type': 'ir.actions.act_window',
             'name': 'New Batch',
@@ -164,7 +162,7 @@ class StudentDivision(models.Model):
             'view_mode': 'tree',
             'target': 'main',
         }
-
+"""
 
 class TeacherDesignation(models.Model):
     _name = 'teacher.designation'
@@ -192,7 +190,7 @@ class TeacherDesignation(models.Model):
 
 class ExamName(models.Model):
     _name = 'exam.name'
-    _description = 'Exam Subject Name'
+    _description = 'Exam Name'
     _inherit = ["mail.thread", "mail.activity.mixin"]
 
 

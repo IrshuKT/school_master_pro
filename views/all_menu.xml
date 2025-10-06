@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <menuitem name="SCHOOL MASTER PRO" id="school_master_root"
-              web_icon="school_master_pro,static/description/webicon.png"
+              web_icon="school_master_pro,static/description/icon.png"
               sequence="-101"/>
 
     <!-- actions -->

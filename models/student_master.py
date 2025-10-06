@@ -250,9 +250,82 @@ class StudentMaster(models.Model):
                 res['year_id'] = teacher.course_year_batch_ids[0].year_id.id
         return res
 
-    # batch_id = fields.Many2one(
-    #     'student.division',string="Batch",domain="[('course_id', '=', course_id)]")
-    #academic_id = fields.Many2one('student.academic', string='Academic Record')
+    def action_auto_promote_next_year(self):
+        # Promote students to next academic year (on/after May 1),
+        # carry forward pending balance, and create new Term One fee.
+
+        today = date.today()
+        promoted_count = 0
+
+        if today.month < 5:
+            _logger.info("⏳ Promotion skipped: current date before May 1 (%s)", today)
+            return 0
+
+        for student in self.search([('state', '=', 'confirmed')]):
+            course = student.course_id
+            current_year = student.year_id
+            if not course or not current_year:
+                continue
+
+            # Get course years (in correct order)
+            all_years = self.env['course.year.line'].search([
+                ('course_id', '=', course.id)
+            ], order='id asc')
+
+            if current_year.id not in all_years.ids:
+                continue
+
+            current_index = all_years.ids.index(current_year.id)
+            if current_index == len(all_years) - 1:
+                continue  # Already last year
+
+            next_year = all_years[current_index + 1]
+            fee_model = self.env['student.fee.invoice']
+
+            # 🔹 1. Calculate unpaid balance
+            unpaid_invoices = student.fee_invoice_ids.filtered(
+                lambda inv: inv.state == 'confirmed' and inv.amount > 0
+            )
+            total_paid = sum(r.amount for r in student.fee_receipt_ids if r.state == 'confirmed')
+            total_charged = sum(inv.original_amount for inv in unpaid_invoices)
+            balance = total_charged - total_paid
+
+            # 🔹 2. Promote student
+            student.write({'year_id': next_year.id})
+
+            # 🔹 3. Carry forward balance, if any
+            if balance > 0:
+                fee_model.create({
+                    'student_id': student.id,
+                    'course_id': course.id,
+                    'year_id': next_year.id,
+                    'invoice_date': fields.Date.today(),
+                    'description': f"Carry Forward Balance from {current_year.name}",
+                    'amount': balance,
+                    'invoice_type': 'carry_forward',
+                    'state': 'confirmed',
+                    'is_locked': True,
+                })
+
+            # 🔹 4. Create Term 1 for new year (no admission fee)
+            if course.term_one_fee > 0:
+                fee_model.create({
+                    'student_id': student.id,
+                    'course_id': course.id,
+                    'year_id': next_year.id,
+                    'invoice_date': fields.Date.today(),
+                    'description': f"{next_year.name} - Term One Fee",
+                    'amount': course.term_one_fee,
+                    'invoice_type': 'term_one',
+                    'state': 'confirmed',
+                    'is_locked': True,
+                })
+
+            promoted_count += 1
+
+        _logger.info("🎓 Auto-promoted %s students (carry forward balances handled)", promoted_count)
+        return promoted_count
+
 
 
 

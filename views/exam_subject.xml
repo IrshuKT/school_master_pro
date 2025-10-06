@@ -21,7 +21,7 @@
             <form>
                 <div class="custom-sticky-header" position="sticky">
                     <header>
-                        <button name="action_edit" type="object" string="Reset to draft"
+                        <button name="action_edit" type="object" string="Edit"
                                 invisible="not is_locked"/>
                         <button name="action_save" type="object" string="Save" class="btn btn-outline-success"
                                 invisible="is_locked"/>

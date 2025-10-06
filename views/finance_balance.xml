@@ -5,7 +5,7 @@
         <field name="name">finance.transaction.tree</field>
         <field name="model">finance.transaction</field>
         <field name="arch" type="xml">
-            <list create="false" edit="false" delete="false">
+            <list create="false" edit="false" delete="false" default_order="date desc, id desc">
                 <field name="date"/>
                 <field name="account_type"/>
                 <field name="head_id"/>
