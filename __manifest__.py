@@ -9,14 +9,13 @@ Long description of module's purpose
     """,
 
     'author': "Irshad K T",
-    'website': "www.linkedin.com/in/irshadkt",
+    'website': "https://www.linkedin.com/in/irshadkt",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/15.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'Student Managment',
-    'version': '1.6',
-
+    'category': 'Education',
+    'version': '18.0.1.2.0',
     # any module necessary for this one to work correctly
     'depends': ['base', 'mail', 'web','contacts'],
 
