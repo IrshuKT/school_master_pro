@@ -1,4 +1,7 @@
-from odoo import models,fields,api
+
+
+from odoo import models,fields,api,_
+from odoo.exceptions import ValidationError
 
 
 class ExamSubject(models.Model):
@@ -24,17 +27,16 @@ class ExamSubject(models.Model):
 
     def action_save(self):
         self.write({'is_locked': True})
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        for rec in self:
+            rec.state = 'confirmed'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_edit(self):
         self.write({'is_locked': False})
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'reload',
-        }
+        for rec in self:
+            rec.state = 'draft'
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
 
     def action_back(self):
         if not self.id:
@@ -45,4 +47,23 @@ class ExamSubject(models.Model):
             "tag": "do-action-replace-history",
             "params": {"action": action},
         }
+
+    @api.constrains('name', 'course_id', 'year_id')
+    def _check_unique_subject_per_course_year(self):
+        for rec in self:
+            if rec.name and rec.course_id and rec.year_id:
+                existing = self.search([
+                    ('id', '!=', rec.id),
+                    ('course_id', '=', rec.course_id.id),
+                    ('year_id', '=', rec.year_id.id),
+                    ('name', 'ilike', rec.name.strip()),
+                ], limit=1)
+                if existing:
+                    raise ValidationError(_(
+                        "The subject '%(subject)s' already exists for Course '%(course)s' and Year '%(year)s'.",
+                        subject=rec.name,
+                        course=rec.course_id.display_name,
+                        year=rec.year_id.display_name,
+                    ))
+
 

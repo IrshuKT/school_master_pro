@@ -31,6 +31,12 @@ class StudentFeeInvoice(models.Model):
     invoice_date = fields.Date(string="Invoice Date", default=fields.Date.today, required=True)
     is_locked = fields.Boolean(string='Locked', default=False)
 
+    show_save_button = fields.Boolean(string="Show Save Button", compute="_compute_button_visibility")
+    show_edit_button = fields.Boolean(string="Show Edit Button", compute="_compute_button_visibility")
+
+    company_logo = fields.Binary(string='Company Logo', related='company_id.logo', readonly=True)
+    company_id = fields.Many2one(
+        'res.company', string='Company', default=lambda self: self.env.company, readonly=True)
 
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -44,10 +50,6 @@ class StudentFeeInvoice(models.Model):
         ('term_two', 'Term Two Fee'),
         ('term_three', 'Term Three Fee'),
     ], string='Invoice Type', tracking=True)
-
-    company_logo = fields.Binary(string='Company Logo', related='company_id.logo', readonly=True)
-    company_id = fields.Many2one(
-        'res.company', string='Company', default=lambda self: self.env.company, readonly=True)
 
 
     @api.onchange('student_id')
@@ -67,6 +69,9 @@ class StudentFeeInvoice(models.Model):
             # if original_amount is empty → set it equal to entered amount
             if not vals.get("original_amount"):
                 vals["original_amount"] = vals.get("amount", 0.0)
+            if 'is_locked' not in vals:
+                vals['is_locked'] = vals.get('state') == 'confirmed'
+
         return super().create(vals_list)
     """
     # Add SQL constraints to prevent duplicates
@@ -81,19 +86,43 @@ class StudentFeeInvoice(models.Model):
     ]
     """
 
+    def write(self, vals):
+        """Ensure is_locked stays in sync with state"""
+        if 'state' in vals and 'is_locked' not in vals:
+            vals['is_locked'] = vals['state'] == 'confirmed'
+        return super().write(vals)
+
+    @api.depends('state', 'is_locked')
+    def _compute_button_visibility(self):
+        for rec in self:
+            # Show Save button when draft/unlocked, Edit button when confirmed/locked
+            rec.show_save_button = rec.state == 'draft' and not rec.is_locked
+            rec.show_edit_button = rec.state == 'confirmed' and rec.is_locked
+
+    # --- Action methods ---
     def action_save(self):
-        # Use single write operation for better performance
-        self.write({
-            'is_locked': True,
-            'state': 'confirmed'
-        })
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        self.write({'state': 'confirmed', 'is_locked': True})
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'student.fee.invoice',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
+            'context': dict(self.env.context, reload=True),
+        }
 
     def action_edit(self):
-        self.write({'is_locked': False})
-        for rec in self:
-            rec.state = 'draft'
-        return {'type': 'ir.actions.client', 'tag': 'reload'}
+        self.write({'state': 'draft', 'is_locked': False})
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'student.fee.invoice',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'target': 'current',
+            'context': dict(self.env.context, reload=True),
+        }
+
+
 
     def action_back(self):
         # Do nothing if the record is new (no ID)
@@ -108,7 +137,7 @@ class StudentFeeInvoice(models.Model):
 
     @api.model
     def generate_next_term_invoices(self):
-        """Cron job: Generate Term 2 and Term 3 invoices automatically"""
+        """Cron job: Generate Term 2 and Term 3 invoices automatically with proper dependencies"""
         students = self.env['student.master'].search([])
         invoice_count = 0
 
@@ -117,7 +146,7 @@ class StudentFeeInvoice(models.Model):
             if not course:
                 continue
 
-            # ✅ Term 2 (after Term 1)
+            # ✅ Term 2 (depends on Term 1)
             term1_invoice = self.search([
                 ('student_id', '=', student.id),
                 ('invoice_type', '=', 'term_one'),
@@ -125,14 +154,17 @@ class StudentFeeInvoice(models.Model):
             ], order='invoice_date desc', limit=1)
 
             if term1_invoice and course.term_two_fee > 0:
-                #due_date = term1_invoice.invoice_date + timedelta(days=90)
-                due_date = term1_invoice.invoice_date + timedelta(minutes=5)  # ⏱ testing
+                # For testing: 5 minutes after Term 1
+                # For production: use days=90 (3 months)
+                due_date = term1_invoice.invoice_date + timedelta(minutes=5)
+
+                # Check if today is after due date AND Term 2 doesn't exist
                 if fields.Date.today() >= due_date:
-                    exists = self.search([
+                    term2_exists = self.search([
                         ('student_id', '=', student.id),
                         ('invoice_type', '=', 'term_two')
                     ], limit=1)
-                    if not exists:
+                    if not term2_exists:
                         self.create({
                             'student_id': student.id,
                             'course_id': course.id,
@@ -142,11 +174,14 @@ class StudentFeeInvoice(models.Model):
                             'amount': course.term_two_fee,
                             'invoice_type': 'term_two',
                             'state': 'confirmed',
+                            'is_locked': True,
                             'company_id': self.env.company.id,
                         })
                         invoice_count += 1
+                        _logger.info("✅ Created Term 2 invoice for student %s", student.name)
+                        continue  # Skip Term 3 check for this student in this run
 
-            # ✅ Term 3 (after Term 2)
+            # ✅ Term 3 (depends on Term 2 - ONLY if Term 2 exists and is old enough)
             term2_invoice = self.search([
                 ('student_id', '=', student.id),
                 ('invoice_type', '=', 'term_two'),
@@ -154,14 +189,17 @@ class StudentFeeInvoice(models.Model):
             ], order='invoice_date desc', limit=1)
 
             if term2_invoice and course.term_three_fee > 0:
-                #due_date = term1_invoice.invoice_date + timedelta(days=90)
-                due_date = term2_invoice.invoice_date + timedelta(minutes=10)  # ⏱ testing
+                # For testing: 5 minutes after Term 2
+                # For production: use days=90 (3 months)
+                due_date = term2_invoice.invoice_date + timedelta(minutes=5)
+
+                # Check if today is after due date AND Term 3 doesn't exist
                 if fields.Date.today() >= due_date:
-                    exists = self.search([
+                    term3_exists = self.search([
                         ('student_id', '=', student.id),
                         ('invoice_type', '=', 'term_three')
                     ], limit=1)
-                    if not exists:
+                    if not term3_exists:
                         self.create({
                             'student_id': student.id,
                             'course_id': course.id,
@@ -171,14 +209,66 @@ class StudentFeeInvoice(models.Model):
                             'amount': course.term_three_fee,
                             'invoice_type': 'term_three',
                             'state': 'confirmed',
+                            'is_locked': True,
                             'company_id': self.env.company.id,
                         })
                         invoice_count += 1
+                        _logger.info("✅ Created Term 3 invoice for student %s", student.name)
 
         _logger.info("✅ Cron generated %s new term invoices", invoice_count)
         return invoice_count
 
-    """
+    def action_generate_invoices(self):
+        Student = self.env['student.master']
+
+        # 🔎 Decide scope
+        if self.student_id:
+            students = self.student_id
+        elif self.course_id and self.year_id:
+            students = Student.search([
+                ('course_id', '=', self.course_id.id),
+                ('year_id', '=', self.year_id.id)
+            ])
+        elif self.course_id:
+            students = Student.search([
+                ('course_id', '=', self.course_id.id)
+            ])
+        else:
+            students = Student.search([])
+
+        if not students:
+            raise UserError("⚠️ No students found for the selected criteria.")
+
+        invoices = self.env['student.fee.invoice']
+        for student in students:
+            vals = {
+                'student_id': student.id,
+                'course_id': student.course_id.id,
+                'year_id': student.year_id.id,
+                'invoice_date': fields.Date.today(),
+                'description': self.description,
+                'amount': self.amount,
+                'invoice_type': self.invoice_type,
+                'state': 'confirmed',
+                'is_locked': True,  # ✅ Explicitly set locked
+                'company_id': self.env.company.id,
+                'original_amount': self.amount,
+            }
+            invoices |= self.create(vals)
+
+        return {
+            'effect': {
+                'fadeout': 'slow',
+                'message': f"✅ {len(invoices)} invoices created and saved successfully!",
+                'type': 'rainbow_man',
+            },
+            'type': 'ir.actions.act_window',
+            'res_model': 'student.fee.invoice',
+            'view_mode': 'list,form',
+        }
+
+
+"""
     def action_generate_invoices(self):
         Student = self.env['student.master']
 
@@ -229,7 +319,7 @@ class StudentFeeInvoice(models.Model):
             'context': {},
             'views': [(False, 'list')],
         }
-    """
+    
 
     def action_generate_invoices(self):
         Student = self.env['student.master']
@@ -283,3 +373,4 @@ class StudentFeeInvoice(models.Model):
             'res_model': 'student.fee.invoice',
             'view_mode': 'list,form',
         }
+    """

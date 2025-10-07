@@ -22,7 +22,7 @@ class StudentClassName(models.Model):
     student_ids = fields.One2many('student.master', 'course_id', string="Students")
     year_line_ids = fields.One2many('course.year.line', 'course_id', string="Years")
     subject_ids = fields.One2many('exam.subject', 'course_id', string="Subjects")
-    batch_ids = fields.One2many('student.division', 'course_id', string="Batches")
+    #batch_ids = fields.One2many('student.division', 'course_id', string="Batches")
 
 
     def _generate_year_lines(self):

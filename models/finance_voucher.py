@@ -17,6 +17,11 @@ class FinanceVoucher(models.Model):
         ("payment", "Payment"),
     ], string="Voucher Type", required=True ,)
 
+    direction = fields.Selection([
+        ('in', 'In'),
+        ('out', 'Out')
+    ], string="Direction", required=True, default='in')
+
     account_type = fields.Selection([
         ("cash", "Cash"),
         ("bank", "Bank"),
@@ -24,10 +29,7 @@ class FinanceVoucher(models.Model):
 
     head_id = fields.Many2one(
         "finance.head",
-        string="Head / Account",
-        required=True,
-        help="E.g. Student Fees, Donation, Salary, Vendor Payment"
-    )
+        string="Head / Account",required=True,help="E.g. Student Fees, Donation, Salary, Vendor Payment")
 
     partner_id = fields.Char(string="Party / Source", required=True)
     description = fields.Char(string="Description")
@@ -54,17 +56,45 @@ class FinanceVoucher(models.Model):
     def action_save(self):
         for rec in self:
             self.write({'is_locked': True})
-            if rec.state == "confirmed":
-                continue
-            self.env["finance.transaction"].create({
+
+            txn_vals = {
                 "date": rec.date,
                 "account_type": rec.account_type,
-                "description": f"{rec.voucher_type.title()} - {rec.head_id.name} ({rec.partner_id})",
+                "head_id": rec.head_id.id,
                 "amount": rec.amount,
                 "direction": "in" if rec.voucher_type == "receipt" else "out",
-            })
+                "description": f"{rec.voucher_type.title()} - {rec.head_id.name} ({rec.partner_id})",
+                "ref_model": "finance.voucher",
+                "ref_id": rec.id,
+            }
+
+            existing_txn = self.env['finance.transaction'].search([
+                ('ref_model', '=', 'finance.voucher'),
+                ('ref_id', '=', rec.id)
+            ], limit=1)
+
+            if existing_txn:
+                existing_txn.write(txn_vals)
+            else:
+                self.env['finance.transaction'].create(txn_vals)
 
             rec.state = "confirmed"
+
+        # Trigger UI refresh for cash/bank book
+        return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    # def action_save(self):
+    #     for rec in self:
+    #         self.write({'is_locked': True})
+    #         self.env["finance.transaction"].create({
+    #             "date": rec.date,
+    #             "account_type": rec.account_type,
+    #             "head_id": rec.head_id.id,  # 🔥 Add this line
+    #             "description": f"{rec.voucher_type.title()} - {rec.head_id.name} ({rec.partner_id})",
+    #             "amount": rec.amount,
+    #             "direction": "in" if rec.voucher_type == "receipt" else "out",            })
+    #
+    #         rec.state = "confirmed"
 
     def action_edit(self):
         self.write({'is_locked': False})

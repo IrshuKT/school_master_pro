@@ -17,49 +17,63 @@ class StudentFeeReceipt(models.Model):
 
 
     name = fields.Char(string='Receipt Number',readonly=True,default='New')
-    #student_id = fields.Many2one('student.master', string='Student Name')
     student_id = fields.Many2one(
-        'student.master',
-        string='Student Name',
+        'student.master',string='Student Name',
         domain="[('student_class_name','=',course_id), ('course.year.line','=',year_id)]",
-        required=True,tracking=True
-    )
-    #academic_id = fields.Many2one('student.academic', string='Academic Record', related='student_id.academic_id',
-                                  #store=True)
+        required=True,tracking=True)
+
     course_id = fields.Many2one(
-        'student.class.name',
-        string="Course",
-        required=True
-    )
+        'student.class.name',string="Course",required=True)
     year_id = fields.Many2one(
-        'course.year.line',
-        string="Year",
-        domain="[('course_id', '=', course_id)]",  # 🔑 Only years of selected course
-        required=True
-    )
+        'course.year.line',string="Year",domain="[('course_id', '=', course_id)]", required=True)
     amount = fields.Float(string='Amount', required=True,tracking=True)
     payment_date = fields.Datetime(string='Payment Date', default=fields.Datetime.now)
     payment_method = fields.Selection([
         ('cash', 'Cash'),
-        ('bank', 'Bank Transfer'),
-        ('card', 'Credit/Debit Card'),
-        ('online', 'Online Payment')
-    ], string='Payment Method', default='cash',tracking=True)
+        ('bank', 'Bank'),
+    ],string='Payment Method', default='cash',tracking=True)
+
+    invoice_type = fields.Selection([
+        ('admission', 'Admission Fee'),
+        ('term_one', 'Term One Fee'),
+        ('term_two', 'Term Two Fee'),
+        ('term_three', 'Term Three Fee'),
+    ], string='Invoice Type', tracking=True)
+
+    voucher_type = fields.Selection([
+        ("receipt", "Receipt"),
+        ("payment", "Payment"),
+    ], string="Voucher Type", default='receipt', required=True, )
+
+    direction = fields.Selection([
+        ('in', 'In'),
+        ('out', 'Out')
+    ], string="Direction", required=True, default='in')
+
+    # voucher_type = fields.Selection([
+    #     ("receipt", "Receipt"),
+    #     ("payment", "Payment"),
+    # ], string="Voucher Type", required=True, )
+
     reference = fields.Char(string='Payment Reference',tracking=True)
     collected_by = fields.Many2one(
         'res.users', string='Collected By', default=lambda self: self.env.user
     )
     is_locked = fields.Boolean(string='Locked', default=False)
-    # Add a related field to get the company logo
     company_logo = fields.Binary(string='Company Logo', related='company_id.logo', readonly=True)
-    # Ensure company_id exists in the model
     company_id = fields.Many2one(
         'res.company', string='Company', default=lambda self: self.env.company, readonly=True)
+
+    head_id = fields.Many2one(
+        "finance.head",
+        string="Head / Account", required=True, help="E.g. Student Fees, Donation, Salary, Vendor Payment")
 
     state = fields.Selection([
         ('draft', 'Draft'),
         ('confirmed', 'Confirmed'),
     ], string="Status", default='draft', tracking=True)
+
+
 
     receipt_type = fields.Selection([
         ('payment', 'Payment'),
@@ -83,33 +97,59 @@ class StudentFeeReceipt(models.Model):
         records = super().create(vals_list)
         return records
 
-    # Locking / Unlocking
     def action_save(self):
-        self.write({'is_locked': True})
+        account_type_map = {
+            'cash': 'cash',
+            'bank': 'bank',
+        }
+
         for rec in self:
-            rec.state = 'confirmed'
+            rec.write({'is_locked': True})
+            account_type = account_type_map.get(rec.payment_method, 'cash')
 
-            ledger_type = 'cash' if rec.payment_method == 'cash' else 'bank'
+            txn_vals = {
+                "date": rec.payment_date,
+                "account_type": account_type,
+                "head_id": rec.head_id.id,
+                "amount": rec.amount,
+                "direction": "in" if rec.voucher_type == "receipt" else "out",
+                "description": f"{rec.voucher_type.title()} - {rec.head_id.name} ({rec.student_id.name})",
+                "ref_model": "student.fee.receipt",
+                "ref_id": rec.id,
+            }
 
-            self.env['finance.transaction'].create({
-                'date': rec.payment_date,
-                'account_type': ledger_type,
-                'description': f"Receipt {rec.name} ({rec.student_id.student_name})",
-                'amount': rec.amount,
-                'direction': 'in',
-            })
+            existing_txn = self.env['finance.transaction'].search([
+                ('ref_model', '=', 'student.fee.receipt'),
+                ('ref_id', '=', rec.id)
+            ], limit=1)
 
-            _logger.info("Transaction recorded: %s %s %.2f",
-                         ledger_type, rec.payment_method, rec.amount)
+            if existing_txn:
+                existing_txn.write(txn_vals)
+            else:
+                self.env['finance.transaction'].create(txn_vals)
 
+            rec.state = "confirmed"
+
+        # Trigger UI refresh for cash/bank book
         return {'type': 'ir.actions.client', 'tag': 'reload'}
+
+    # Locking / Unlocking
+    # def action_save(self):
+    #     for rec in self:
+    #         rec.write({'is_locked': True})
+    #         self.env["finance.transaction"].create({
+    #             "date": rec.payment_date,
+    #             "account_type": rec.payment_method,
+    #             "head_id": rec.head_id.id,  # 🔥 Add this line
+    #             "amount": rec.amount,
+    #             "direction": "in" if rec.voucher_type == "receipt" else "out",            })
+    #         rec.state = "confirmed"
 
     def action_edit(self):
         self.write({'is_locked': False})
         for rec in self:
             rec.state = 'draft'
         return {'type': 'ir.actions.client', 'tag': 'reload'}
-
 
 
     # Filter students by selected course and year
@@ -132,50 +172,6 @@ class StudentFeeReceipt(models.Model):
         else:
             _logger.info("No course/year selected, student list cleared")
         return {'domain': domain}
-
-    # @api.onchange('student_id')
-    # def _onchange_student_id(self):
-    #     """Update course and year based on student"""
-    #     if self.student_id:
-    #         self.course_id = self.student_id.student_class_name.id
-    #         self.year_id = self.student_id.student_class.id
-    #         if self.student_id.academic_id:
-    #             self.amount = self.student_id.academic_id.current_balance
-
-
-        """ 
-        # Update academic record with payment
-        for rec in records:
-            if rec.academic_id and rec.amount > 0:
-                try:
-                    # Call the add_fee_payment method instead of direct write
-                    rec.academic_id.add_fee_payment(rec.amount)
-
-                    # Update student master record
-                    rec.student_id.write({
-                        'total_fees_receipted': rec.student_id.total_fees_receipted + rec.amount
-                    })
-
-                    _logger.info(
-                        f"Successfully processed payment of {rec.amount} for student {rec.student_id.student_name}")
-
-                except UserError as e:
-                    # Log the error and raise it
-                    _logger.error(f"Error processing payment for student {rec.student_id.student_name}: {e}")
-                    raise UserError(f"Cannot create receipt: {e}")
-                except Exception as e:
-                    _logger.error(f"Unexpected error processing payment: {e}")
-                    raise UserError(f"Unexpected error occurred: {e}")
-
-    """
-        # # Restrict editing if locked
-        # def write(self, vals):
-        #     if any(rec.is_locked for rec in self):
-        #         raise UserError(_("You cannot edit a locked receipt."))
-        #     return super().write(vals)
-
-
-
 
 
 
@@ -209,6 +205,7 @@ class FeeUpdateWizard(models.TransientModel):
                     'amount': course.quarter_fee,
                     'state': 'confirmed',
                     'company_id': self.env.company.id,
+
                 }
                 self.env['student.fee.invoice'].create(invoice_vals)
                 invoice_count += 1
@@ -226,16 +223,7 @@ class FeeUpdateWizard(models.TransientModel):
         _logger.info("Quarterly invoices generated: %s", invoice_count)
         return {'type': 'ir.actions.act_window_close'}
 
-    # @api.depends()
-    # def _compute_can_execute(self):
-    #     """ Allow execution only if 90+ days passed since last run """
-    #     last_execution = self.env['ir.config_parameter'].sudo().get_param('fee_update.last_execution')
-    #     if last_execution:
-    #         last_date = fields.Datetime.from_string(last_execution)
-    #         time_diff = (fields.Datetime.now() - last_date).days
-    #         self.can_execute = time_diff >= 90
-    #     else:
-    #         self.can_execute = True
+   
     @api.depends()
     def _compute_can_execute(self):
         """ Allow execution only if 5+ minutes passed since last run (for testing) """

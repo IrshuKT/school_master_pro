@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Wizard Form View -->
+    <record model="ir.ui.view" id="receipt_warning_wizard_form">
+        <field name="name">receipt.warning.wizard.form</field>
+        <field name="model">receipt.warning.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <!-- Warning Banner - Fixed accessibility issues -->
+                    <div class="alert alert-warning text-center"
+                         role="alert"
+                         style="margin: 40px 20px; padding: 40px 20px; border: 2px solid #ffc107;">
+
+                        <!-- Icon with proper accessibility -->
+                        <span class="fa fa-exclamation-triangle fa-3x mb-3"
+                              style="color: #856404;"
+                              aria-hidden="true"
+                              title="Warning icon">
+                        </span>
+
+                        <h2 style="color: #856404; font-weight: bold;">
+                            STUDENT RECEIPTS AREA
+                        </h2>
+
+                        <p class="lead" style="font-size: 20px; margin-top: 20px; color: #856404;">
+                            ⚠️ This section is exclusively for managing student  receipts.
+                        </p>
+
+                        <p style="margin-top: 15px; font-size: 16px; color: #856404;">
+                            Please ensure you are managing student receipt-related activities only.
+                        </p>
+                    </div>
+
+                    <!-- Proceed Button -->
+                    <footer class="text-center" style="margin: 20px 0;">
+                        <button name="action_proceed_to_receipts"
+                                string="I Understand - Proceed to Receipts"
+                                type="object"
+                                class="btn-primary btn-lg"
+                                default_focus="1"
+                                style="padding: 12px 30px; font-size: 16px;"
+                                aria-label="Proceed to student receipts after acknowledging warning"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_receipt_warning_wizard" model="ir.actions.act_window">
+        <field name="name">Student Receipts Warning</field>
+        <field name="res_model">receipt.warning.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>

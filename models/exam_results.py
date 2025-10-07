@@ -55,13 +55,10 @@ class ExamResult(models.Model):
         return {'type': 'ir.actions.client', 'tag': 'reload'}
 
     def action_back(self):
-        action = self.env.ref("school_master_pro.exam_result_action_window").read()[0]
-        return {
-            "type": "ir.actions.client",
-            "tag": "do-action-replace-history",
-            "params": {"action": action},
-        }
-
+        action = self.env["ir.actions.actions"]._for_xml_id("school_master_pro.exam_result_action_window")
+        action["clear_breadcrumbs"] = True
+        action["target"] = "main"
+        return action
 
     @api.depends('obtained_mark', 'exam_total_mark')
     def _compute_grade(self):
@@ -102,7 +99,6 @@ class ExamResult(models.Model):
     def default_get(self, fields):
         res = super().default_get(fields)
         if self.env.user.has_group('school_master_pro.group_teacher_user'):
-            # Automatically set the teacher_id to the current teacher
             teacher = self.env.user.teacher_id
             if teacher:
                 res['teacher_id'] = teacher.id
