@@ -87,7 +87,7 @@
 
 ## Screenshots
 
-*(Include screenshots of Kanban, List, and Form views here for better understanding.)*
+
 
 ---
 
